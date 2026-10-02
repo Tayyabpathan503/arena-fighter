@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Arena Fighter 2.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arena Fighter 3.0</title>
 
 <style>
 *{
@@ -14,23 +15,23 @@
 
 html,body{
   margin:0;
+  padding:0;
+  width:100%;
   min-height:100%;
-  background:#03050b;
+}
+
+body{
+  background:
+    radial-gradient(circle at 50% 0%,#16233f 0%,#050711 55%);
   color:white;
   font-family:Arial,sans-serif;
   text-align:center;
   overflow-x:hidden;
 }
 
-body{
-  background:
-    radial-gradient(circle at 50% 10%,#182c49 0,#070b14 42%,#020308 100%);
-}
-
 h1{
   margin:10px 0 2px;
   font-size:25px;
-  letter-spacing:1px;
   text-shadow:0 0 15px #00d9ff;
 }
 
@@ -40,7 +41,7 @@ h1{
   margin-bottom:8px;
 }
 
-/* ================= STATUS ================= */
+/* STATUS */
 
 .top{
   width:94%;
@@ -53,11 +54,10 @@ h1{
 
 .box{
   flex:1;
-  background:linear-gradient(145deg,#151d2d,#080d18);
-  border:1px solid #354662;
+  background:rgba(17,24,39,.94);
+  border:1px solid #293750;
   border-radius:12px;
   padding:7px;
-  box-shadow:inset 0 0 15px #0008,0 5px 20px #0008;
 }
 
 .name{
@@ -68,45 +68,41 @@ h1{
 .bar{
   height:14px;
   margin-top:4px;
-  background:#151a25;
-  border:1px solid #000;
+  background:#252b3a;
   border-radius:20px;
   overflow:hidden;
-  box-shadow:inset 0 2px 5px #000;
 }
 
 .fill{
   height:100%;
   width:100%;
-  transition:width .25s;
+  transition:width .25s ease;
 }
 
 .hp{
-  background:linear-gradient(90deg,#0a9e4b,#26f27b);
-  box-shadow:0 0 12px #16e879;
+  background:linear-gradient(90deg,#0bc95b,#4dff9b);
 }
 
 .ehp{
-  background:linear-gradient(90deg,#b70c29,#ff4055);
-  box-shadow:0 0 12px #ff304d;
+  background:linear-gradient(90deg,#ff173d,#ff6978);
 }
 
 .energy{
-  background:linear-gradient(90deg,#007ca8,#00eaff);
-  box-shadow:0 0 12px #00d9ff;
+  background:linear-gradient(90deg,#008cff,#00efff);
 }
+
+/* ROUND */
 
 .round{
   min-width:105px;
   padding:8px;
   border-radius:11px;
-  background:linear-gradient(#202b42,#101625);
+  background:#171f33;
   border:1px solid #ffd54a;
   color:#ffd54a;
   font-size:15px;
   font-weight:bold;
   text-shadow:0 0 8px #ff9800;
-  box-shadow:0 0 20px #ff9d001c;
 }
 
 .round small{
@@ -116,7 +112,7 @@ h1{
   font-size:9px;
 }
 
-/* ================= ARENA ================= */
+/* ARENA */
 
 .arena{
   position:relative;
@@ -125,347 +121,317 @@ h1{
   height:430px;
   margin:10px auto;
   overflow:hidden;
-  border:2px solid #465a79;
+  border:2px solid #394864;
   border-radius:18px;
 
   background:
-    radial-gradient(circle at 50% 24%,#41668f 0,#202f4b 23%,#111a2b 52%,#050812 100%);
+    radial-gradient(
+      circle at 50% 18%,
+      #496b9d 0%,
+      #263a5e 23%,
+      #111a30 52%,
+      #050811 100%
+    );
 
   box-shadow:
-    0 0 35px #00c8ff20,
-    inset 0 0 80px #000c;
+    0 0 35px rgba(0,200,255,.18),
+    inset 0 0 70px rgba(0,0,0,.55);
 }
 
-/* distant lights */
+/* BACK WALL */
 
 .arena:before{
   content:"";
   position:absolute;
-  inset:0;
-  background:
-    radial-gradient(circle at 12% 20%,#00cfff55 0 2px,transparent 4px),
-    radial-gradient(circle at 88% 20%,#ff304455 0 2px,transparent 4px),
-    linear-gradient(90deg,transparent 0 10%,#ffffff08 10.2% 10.5%,transparent 10.7% 89.3%,#ffffff08 89.5% 89.8%,transparent 90%);
-  pointer-events:none;
+  left:0;
+  right:0;
+  top:51%;
+  height:2px;
+  background:#58718f;
+
+  box-shadow:
+    0 38px 0 rgba(68,91,119,.65),
+    0 76px 0 rgba(48,66,91,.55),
+    0 114px 0 rgba(35,49,70,.45);
 }
 
-/* arena ceiling lights */
+/* LIGHTS */
 
 .arena:after{
   content:"";
   position:absolute;
-  top:25px;
-  left:8%;
-  width:84%;
-  height:3px;
-  background:linear-gradient(90deg,
-    transparent,
-    #00d9ff,
-    #ffffff,
-    #ff3155,
-    transparent
+  top:15px;
+  left:50%;
+  width:280px;
+  height:180px;
+  transform:translateX(-50%);
+  background:radial-gradient(
+    ellipse,
+    rgba(0,217,255,.22),
+    transparent 70%
   );
-  box-shadow:
-    0 0 15px #00d9ff,
-    0 0 25px #ff3155;
-  opacity:.8;
+  pointer-events:none;
 }
 
-/* FLOOR */
+/* GROUND */
 
 .ground{
   position:absolute;
   bottom:0;
   left:0;
   width:100%;
-  height:125px;
-  z-index:1;
-
+  height:70px;
   background:
-    linear-gradient(170deg,transparent 0 32%,#24334a 33%,#111a29 34%),
-    repeating-linear-gradient(
-      90deg,
-      #111a29 0 55px,
-      #18263a 56px 57px
-    );
-
-  border-top:2px solid #667b98;
-
-  transform-origin:bottom;
-  box-shadow:inset 0 25px 40px #0008;
+    linear-gradient(#263750,#0b101a);
+  border-top:2px solid #647b99;
+  z-index:2;
 }
-
-/* floor grid */
 
 .ground:before{
   content:"";
   position:absolute;
-  inset:0;
-  background:
-    linear-gradient(#ffffff0b 1px,transparent 1px),
-    linear-gradient(90deg,#ffffff0b 1px,transparent 1px);
-  background-size:100% 25px,45px 100%;
-  transform:perspective(250px) rotateX(45deg) scale(1.4);
-  transform-origin:bottom;
+  left:0;
+  right:0;
+  top:27px;
+  height:1px;
+  background:#344961;
 }
 
-/* arena pillars */
-
-.pillar{
+.ground:after{
+  content:"";
   position:absolute;
-  top:75px;
-  width:25px;
-  height:230px;
-  background:linear-gradient(90deg,#111827,#5b6d87,#151d2d);
-  box-shadow:0 0 20px #000;
-  z-index:0;
+  left:50%;
+  top:0;
+  width:2px;
+  height:100%;
+  background:rgba(99,126,158,.35);
+  box-shadow:
+    -150px 0 rgba(99,126,158,.18),
+    150px 0 rgba(99,126,158,.18);
 }
 
-.pillar.left{
-  left:35px;
-}
-
-.pillar.right{
-  right:35px;
-}
-
-.light{
-  position:absolute;
-  width:10px;
-  height:100px;
-  top:95px;
-  border-radius:20px;
-  background:#00d9ff;
-  box-shadow:0 0 25px #00d9ff;
-  opacity:.55;
-}
-
-.light.l{
-  left:68px;
-}
-
-.light.r{
-  right:68px;
-  background:#ff3155;
-  box-shadow:0 0 25px #ff3155;
-}
-
-/* ================= FIGHTERS ================= */
+/* FIGHTER */
 
 .fighter{
   position:absolute;
-  bottom:108px;
-  width:100px;
-  height:175px;
-  z-index:10;
-  transition:left .12s;
-  filter:drop-shadow(0 15px 8px #0009);
+  bottom:70px;
+  width:65px;
+  height:125px;
+  z-index:5;
+  transition:left .08s linear;
+}
+
+/* BODY */
+
+.fighter .body{
+  position:absolute;
+  left:15px;
+  top:36px;
+  width:38px;
+  height:57px;
+  border-radius:12px 12px 7px 7px;
+  border:2px solid rgba(0,0,0,.65);
+  box-shadow:
+    inset 5px 0 rgba(255,255,255,.14),
+    inset -6px 0 rgba(0,0,0,.2);
+}
+
+/* HEAD */
+
+.fighter .head{
+  position:absolute;
+  left:13px;
+  top:-2px;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:linear-gradient(
+    145deg,
+    #ffe1c2,
+    #d99568
+  );
+  border:3px solid #121212;
+  z-index:4;
+}
+
+/* HAIR */
+
+.fighter .hair{
+  position:absolute;
+  left:14px;
+  top:-4px;
+  width:40px;
+  height:18px;
+  border-radius:20px 20px 5px 5px;
+  background:#171717;
+  z-index:6;
+}
+
+/* EYES */
+
+.fighter .eye{
+  position:absolute;
+  top:18px;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#111;
+  z-index:7;
+}
+
+.fighter .eye.one{
+  left:23px;
+}
+
+.fighter .eye.two{
+  left:36px;
+}
+
+/* ARMS */
+
+.fighter .arm{
+  position:absolute;
+  top:40px;
+  width:15px;
+  height:48px;
+  border-radius:10px;
+  background:inherit;
+  border:2px solid rgba(0,0,0,.5);
+  transform-origin:top center;
+}
+
+.fighter .arm.left{
+  left:3px;
+  transform:rotate(12deg);
+}
+
+.fighter .arm.right{
+  right:3px;
+  transform:rotate(-12deg);
+}
+
+/* GLOVES */
+
+.fighter .glove{
+  position:absolute;
+  width:17px;
+  height:17px;
+  border-radius:50%;
+  background:#20252e;
+  border:2px solid #090b10;
+  z-index:5;
+}
+
+.fighter .glove.left{
+  left:0;
+  top:80px;
+}
+
+.fighter .glove.right{
+  right:0;
+  top:80px;
+}
+
+/* LEGS */
+
+.fighter .leg{
+  position:absolute;
+  top:88px;
+  width:17px;
+  height:38px;
+  border-radius:5px 5px 10px 10px;
+  background:inherit;
+  border:2px solid rgba(0,0,0,.55);
+}
+
+.fighter .leg.left{
+  left:15px;
+}
+
+.fighter .leg.right{
+  right:15px;
+}
+
+/* SHOES */
+
+.fighter .shoe{
+  position:absolute;
+  width:25px;
+  height:12px;
+  border-radius:10px;
+  background:#11151d;
+  bottom:-3px;
+}
+
+.fighter .shoe.left{
+  left:8px;
+}
+
+.fighter .shoe.right{
+  right:8px;
+}
+
+/* PLAYER COLORS */
+
+#player .body,
+#player .arm,
+#player .leg{
+  background:linear-gradient(
+    180deg,
+    #32d2ff,
+    #1254db
+  );
 }
 
 #player{
   left:70px;
+  filter:drop-shadow(0 0 12px rgba(0,190,255,.5));
+}
+
+/* ENEMY */
+
+#enemy .body,
+#enemy .arm,
+#enemy .leg{
+  background:linear-gradient(
+    180deg,
+    #ff6674,
+    #a91536
+  );
 }
 
 #enemy{
   right:70px;
+  filter:drop-shadow(0 0 12px rgba(255,30,60,.5));
 }
 
-/* body */
-
-.body{
-  position:absolute;
-  width:52px;
-  height:72px;
-  left:24px;
-  top:45px;
-  border-radius:18px 18px 12px 12px;
-  z-index:4;
-}
-
-.playerBody{
-  background:
-    linear-gradient(90deg,#073b75,#29b9ff 45%,#0c55c9);
-  border:2px solid #54d9ff;
-  box-shadow:
-    inset -10px 0 12px #001c55,
-    0 0 18px #00bfff66;
-}
-
-.enemyBody{
-  background:
-    linear-gradient(90deg,#7d0920,#ff465c 48%,#9b0b28);
-  border:2px solid #ff7180;
-  box-shadow:
-    inset -10px 0 12px #51000f,
-    0 0 18px #ff244866;
-}
-
-/* head */
-
-.head{
-  position:absolute;
-  width:45px;
-  height:45px;
-  left:27px;
-  top:3px;
-  border-radius:50%;
-  background:
-    radial-gradient(circle at 35% 28%,#ffe2c1,#d18c62 72%);
-  border:3px solid #17100e;
-  z-index:7;
-  box-shadow:inset -7px -5px 8px #7d4d35;
-}
-
-/* hair */
-
-.head:before{
-  content:"";
-  position:absolute;
-  width:45px;
-  height:20px;
-  left:-3px;
-  top:-3px;
-  border-radius:50% 50% 35% 35%;
-  background:#10131b;
-}
-
-/* face */
-
-.head:after{
-  content:"";
-  position:absolute;
-  width:7px;
-  height:4px;
-  left:27px;
-  top:22px;
-  border-radius:50%;
-  background:#111;
-  box-shadow:-18px 0 #111;
-}
-
-/* arms */
-
-.arm{
-  position:absolute;
-  width:19px;
-  height:68px;
-  top:51px;
-  border-radius:15px;
-  z-index:3;
-  transform-origin:top center;
-}
-
-.arm1{
-  left:8px;
-  transform:rotate(20deg);
-}
-
-.arm2{
-  right:8px;
-  transform:rotate(-20deg);
-}
-
-.playerArm{
-  background:linear-gradient(90deg,#0c438e,#25c9ff);
-  border:2px solid #4edcff;
-}
-
-.enemyArm{
-  background:linear-gradient(90deg,#8d1029,#ff5063);
-  border:2px solid #ff7180;
-}
-
-/* fists */
-
-.arm:after{
-  content:"";
-  position:absolute;
-  width:23px;
-  height:23px;
-  bottom:-9px;
-  left:-4px;
-  border-radius:50%;
-  background:#d99469;
-  border:2px solid #20130e;
-}
-
-/* legs */
-
-.leg{
-  position:absolute;
-  width:22px;
-  height:70px;
-  top:110px;
-  border-radius:13px;
-  z-index:2;
-  transform-origin:top center;
-}
-
-.leg1{
-  left:27px;
-}
-
-.leg2{
-  right:27px;
-}
-
-.playerLeg{
-  background:linear-gradient(90deg,#092f69,#1a76dc);
-  border:2px solid #3fa8ff;
-}
-
-.enemyLeg{
-  background:linear-gradient(90deg,#5c091b,#c82342);
-  border:2px solid #ff516b;
-}
-
-.leg:after{
-  content:"";
-  position:absolute;
-  width:35px;
-  height:16px;
-  bottom:-6px;
-  left:-8px;
-  border-radius:12px;
-  background:#111827;
-  border:2px solid #333e55;
-}
-
-/* fighter shadow */
+/* SHADOW */
 
 .fighter:after{
   content:"";
   position:absolute;
-  width:100px;
-  height:18px;
-  bottom:-12px;
-  left:0;
+  left:-10px;
+  bottom:-8px;
+  width:85px;
+  height:12px;
   border-radius:50%;
-  background:#0009;
+  background:rgba(0,0,0,.55);
   filter:blur(3px);
   z-index:-1;
 }
 
-/* ================= ANIMATIONS ================= */
-
-.punchAnim .arm2{
-  animation:punchArm .28s ease;
-}
+/* ANIMATIONS */
 
 .punchAnim{
-  animation:punchBody .28s ease;
-}
-
-.kickAnim .leg2{
-  animation:kickLeg .35s ease;
+  animation:punch .25s ease;
 }
 
 .kickAnim{
-  animation:kickBody .35s ease;
+  animation:kick .3s ease;
 }
 
 .hitAnim{
-  animation:hitBody .28s ease;
+  animation:hit .28s ease;
 }
 
 .jumpAnim{
@@ -477,166 +443,50 @@ h1{
 }
 
 .blockAnim{
-  filter:brightness(1.35) drop-shadow(0 0 15px #738cff);
+  filter:
+    brightness(1.35)
+    drop-shadow(0 0 12px #4e6cff) !important;
 }
 
-.specialAnim{
-  animation:specialBody .6s ease;
+@keyframes punch{
+  50%{
+    transform:
+      translateX(30px)
+      scale(1.06);
+  }
 }
 
-@keyframes punchArm{
-  0%{transform:rotate(-20deg)}
-  45%{transform:rotate(-85deg) translateX(35px)}
-  100%{transform:rotate(-20deg)}
+@keyframes kick{
+  50%{
+    transform:
+      translateX(35px)
+      scale(1.07);
+  }
 }
 
-@keyframes punchBody{
-  45%{transform:translateX(22px) scale(1.04)}
-}
-
-@keyframes kickLeg{
-  0%{transform:rotate(0)}
-  45%{transform:rotate(70deg) translateX(20px)}
-  100%{transform:rotate(0)}
-}
-
-@keyframes kickBody{
-  45%{transform:translateX(18px) rotate(-3deg)}
-}
-
-@keyframes hitBody{
-  15%{transform:translateX(-17px) rotate(-4deg)}
-  40%{transform:translateX(16px) rotate(4deg)}
-  70%{transform:translateX(-8px)}
+@keyframes hit{
+  15%{transform:translateX(-16px)}
+  35%{transform:translateX(15px)}
+  55%{transform:translateX(-10px)}
+  75%{transform:translateX(6px)}
 }
 
 @keyframes jump{
-  50%{transform:translateY(-130px) scale(1.05)}
+  50%{
+    transform:translateY(-125px);
+  }
 }
 
 @keyframes jumpAttack{
   40%{
     transform:
-      translate(35px,-110px)
-      rotate(-7deg)
-      scale(1.08);
+      translateY(-105px)
+      translateX(30px)
+      scale(1.1);
   }
 }
 
-@keyframes specialBody{
-  30%{
-    transform:scale(1.12);
-    filter:brightness(2);
-  }
-  60%{
-    transform:scale(.95);
-  }
-}
-
-/* ================= EFFECTS ================= */
-
-.flash{
-  position:absolute;
-  width:140px;
-  height:140px;
-  border-radius:50%;
-  pointer-events:none;
-  background:
-    radial-gradient(circle,#fff 0 5%,#00eaff 12%,#5a00ff 30%,transparent 68%);
-  animation:flash .45s forwards;
-  z-index:20;
-}
-
-@keyframes flash{
-  from{
-    transform:scale(.2);
-    opacity:1;
-  }
-  to{
-    transform:scale(2);
-    opacity:0;
-  }
-}
-
-.spark{
-  position:absolute;
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#fff;
-  box-shadow:0 0 12px #00eaff;
-  pointer-events:none;
-  z-index:25;
-  animation:spark .5s forwards;
-}
-
-@keyframes spark{
-  to{
-    transform:translate(
-      var(--x),
-      var(--y)
-    ) scale(.1);
-    opacity:0;
-  }
-}
-
-.damage{
-  position:absolute;
-  color:#fff;
-  font-size:25px;
-  font-weight:bold;
-  text-shadow:0 0 10px #ff2020;
-  animation:damage .7s forwards;
-  z-index:30;
-}
-
-@keyframes damage{
-  to{
-    transform:translateY(-65px) scale(1.3);
-    opacity:0;
-  }
-}
-
-.critical{
-  position:absolute;
-  color:#ffd400;
-  font-size:27px;
-  font-weight:bold;
-  text-shadow:0 0 15px #ff6200;
-  animation:critical .8s forwards;
-  z-index:31;
-}
-
-@keyframes critical{
-  0%{
-    transform:scale(.4);
-    opacity:0;
-  }
-  30%{
-    transform:scale(1.3);
-    opacity:1;
-  }
-  100%{
-    transform:translateY(-80px);
-    opacity:0;
-  }
-}
-
-/* camera shake */
-
-.shake{
-  animation:cameraShake .25s;
-}
-
-@keyframes cameraShake{
-  0%,100%{transform:translate(0)}
-  20%{transform:translate(-5px,2px)}
-  40%{transform:translate(5px,-2px)}
-  60%{transform:translate(-4px,1px)}
-  80%{transform:translate(4px,-1px)}
-}
-
-/* ================= MESSAGE ================= */
+/* MESSAGE */
 
 #message{
   min-height:28px;
@@ -645,7 +495,7 @@ h1{
   text-shadow:0 0 10px #00d9ff;
 }
 
-/* ================= BUTTONS ================= */
+/* CONTROLS */
 
 .controls{
   width:96%;
@@ -671,34 +521,145 @@ button{
   font-weight:bold;
   background:#202b40;
   box-shadow:0 4px 0 #080c13;
-  transition:.1s;
+  cursor:pointer;
 }
 
 button:active{
-  transform:translateY(3px) scale(.97);
+  transform:translateY(3px);
   box-shadow:none;
 }
 
-.move{background:#263d5c}
-.attack{background:#e87918}
-.kick{background:#d83b45}
-.block{background:#4055c8}
-.jump{background:#087f8c}
-.combo{background:linear-gradient(135deg,#ff7b00,#ff1744)}
-.special{background:linear-gradient(135deg,#8e24aa,#d81bff)}
-.restart{background:#149447}
+.move{
+  background:#26344d;
+}
+
+.attack{
+  background:#e87918;
+}
+
+.kick{
+  background:#d83b45;
+}
+
+.block{
+  background:#4055c8;
+}
+
+.jump{
+  background:#087f8c;
+}
+
+.combo{
+  background:linear-gradient(
+    135deg,
+    #ff7b00,
+    #ff1744
+  );
+}
+
+.special{
+  background:linear-gradient(
+    135deg,
+    #8e24aa,
+    #d81bff
+  );
+}
+
+.restart{
+  background:#149447;
+}
 
 .disabled{
   opacity:.4;
 }
 
-/* ================= ROUND SCREEN ================= */
+/* EFFECTS */
+
+.flash{
+  position:absolute;
+  width:130px;
+  height:130px;
+  border-radius:50%;
+  pointer-events:none;
+  background:radial-gradient(
+    circle,
+    #fff,
+    #00d9ff,
+    transparent 68%
+  );
+  animation:flash .4s forwards;
+  z-index:20;
+}
+
+@keyframes flash{
+  from{
+    transform:scale(.2);
+    opacity:1;
+  }
+
+  to{
+    transform:scale(1.8);
+    opacity:0;
+  }
+}
+
+.damage{
+  position:absolute;
+  color:#fff;
+  font-size:25px;
+  font-weight:bold;
+  text-shadow:0 0 10px #ff2020;
+  animation:damage .7s forwards;
+  z-index:30;
+  pointer-events:none;
+}
+
+@keyframes damage{
+  from{
+    transform:translateY(0) scale(1);
+    opacity:1;
+  }
+
+  to{
+    transform:translateY(-65px) scale(1.3);
+    opacity:0;
+  }
+}
+
+.critical{
+  position:absolute;
+  color:#ffd400;
+  font-size:25px;
+  font-weight:bold;
+  text-shadow:0 0 15px #ff6200;
+  animation:critical .8s forwards;
+  z-index:31;
+  pointer-events:none;
+}
+
+@keyframes critical{
+  0%{
+    transform:scale(.4);
+    opacity:0;
+  }
+
+  30%{
+    transform:scale(1.3);
+    opacity:1;
+  }
+
+  100%{
+    transform:translateY(-80px);
+    opacity:0;
+  }
+}
+
+/* ROUND SCREEN */
 
 .roundScreen{
   position:absolute;
   inset:0;
-  background:rgba(0,0,0,.76);
-  backdrop-filter:blur(4px);
+  background:rgba(0,0,0,.78);
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -717,31 +678,45 @@ button:active{
   color:#ddd;
 }
 
-/* ================= MOBILE ================= */
+.hidden{
+  display:none !important;
+}
+
+/* CAMERA SHAKE */
+
+.shake{
+  animation:cameraShake .25s;
+}
+
+@keyframes cameraShake{
+  0%{transform:translate(0)}
+  25%{transform:translate(-5px,2px)}
+  50%{transform:translate(5px,-2px)}
+  75%{transform:translate(-3px,2px)}
+  100%{transform:translate(0)}
+}
+
+/* MOBILE */
 
 @media(max-width:500px){
+
+  h1{
+    font-size:22px;
+  }
 
   .arena{
     height:350px;
   }
 
   .fighter{
-    transform:scale(.78);
+    transform:scale(.88);
     transform-origin:bottom center;
   }
 
-  .ground{
-    height:105px;
-  }
-
   button{
-    min-width:76px;
+    min-width:78px;
     padding:11px 6px;
     font-size:11px;
-  }
-
-  h1{
-    font-size:22px;
   }
 
   .round{
@@ -749,8 +724,8 @@ button:active{
     font-size:13px;
   }
 
-  .pillar{
-    display:none;
+  .roundScreen h2{
+    font-size:28px;
   }
 }
 </style>
@@ -758,16 +733,21 @@ button:active{
 
 <body>
 
-<h1>⚔️ ARENA FIGHTER 2.0</h1>
+<h1>⚔️ ARENA FIGHTER 3.0</h1>
 
 <div class="subtitle">
-REALISTIC ARENA • COMBO • SPECIAL • FIGHT
+FIGHT • COMBO • JUMP • SPECIAL
 </div>
+
+<!-- STATUS -->
 
 <div class="top">
 
   <div class="box">
-    <div class="name">🔵 PLAYER</div>
+
+    <div class="name">
+      🔵 PLAYER
+    </div>
 
     <div class="bar">
       <div id="playerHP" class="fill hp"></div>
@@ -776,16 +756,23 @@ REALISTIC ARENA • COMBO • SPECIAL • FIGHT
     <div class="bar">
       <div id="playerEnergy" class="fill energy"></div>
     </div>
+
   </div>
 
   <div class="round">
     🏆 ROUND
     <span id="roundNumber">1</span>
-    <small>BEST OF 3</small>
+
+    <small>
+      BEST OF 3
+    </small>
   </div>
 
   <div class="box">
-    <div class="name">🔴 ENEMY</div>
+
+    <div class="name">
+      🔴 ENEMY
+    </div>
 
     <div class="bar">
       <div id="enemyHP" class="fill ehp"></div>
@@ -794,92 +781,137 @@ REALISTIC ARENA • COMBO • SPECIAL • FIGHT
     <div class="bar">
       <div id="enemyEnergy" class="fill energy"></div>
     </div>
+
   </div>
 
 </div>
 
+<!-- ARENA -->
+
 <div class="arena" id="arena">
-
-  <div class="pillar left"></div>
-  <div class="pillar right"></div>
-
-  <div class="light l"></div>
-  <div class="light r"></div>
-
-  <!-- PLAYER -->
 
   <div id="player" class="fighter">
 
-    <div class="head"></div>
+    <div class="head">
+      <div class="hair"></div>
+      <div class="eye one"></div>
+      <div class="eye two"></div>
+    </div>
 
-    <div class="body playerBody"></div>
+    <div class="body"></div>
 
-    <div class="arm arm1 playerArm"></div>
-    <div class="arm arm2 playerArm"></div>
+    <div class="arm left"></div>
+    <div class="arm right"></div>
 
-    <div class="leg leg1 playerLeg"></div>
-    <div class="leg leg2 playerLeg"></div>
+    <div class="glove left"></div>
+    <div class="glove right"></div>
+
+    <div class="leg left"></div>
+    <div class="leg right"></div>
+
+    <div class="shoe left"></div>
+    <div class="shoe right"></div>
 
   </div>
 
-  <!-- ENEMY -->
-
   <div id="enemy" class="fighter">
 
-    <div class="head"></div>
+    <div class="head">
+      <div class="hair"></div>
+      <div class="eye one"></div>
+      <div class="eye two"></div>
+    </div>
 
-    <div class="body enemyBody"></div>
+    <div class="body"></div>
 
-    <div class="arm arm1 enemyArm"></div>
-    <div class="arm arm2 enemyArm"></div>
+    <div class="arm left"></div>
+    <div class="arm right"></div>
 
-    <div class="leg leg1 enemyLeg"></div>
-    <div class="leg leg2 enemyLeg"></div>
+    <div class="glove left"></div>
+    <div class="glove right"></div>
+
+    <div class="leg left"></div>
+    <div class="leg right"></div>
+
+    <div class="shoe left"></div>
+    <div class="shoe right"></div>
 
   </div>
 
   <div class="ground"></div>
 
+  <!-- ROUND POPUP -->
   <div id="roundScreen" class="roundScreen hidden">
-    <h2 id="roundTitle">ROUND 1</h2>
-    <p id="roundText">GET READY!</p>
+
+    <h2 id="roundTitle">
+      ROUND 1
+    </h2>
+
+    <p id="roundText">
+      GET READY!
+    </p>
+
   </div>
 
 </div>
 
-<div id="message">🔥 FIGHT!</div>
+<div id="message">
+🔥 FIGHT!
+</div>
+
+<!-- CONTROLS -->
 
 <div class="controls">
 
   <div class="row">
 
-    <button class="move" onclick="moveLeft()">⬅️ LEFT</button>
+    <button class="move" onclick="moveLeft()">
+      ⬅️ LEFT
+    </button>
 
-    <button class="move" onclick="moveRight()">RIGHT ➡️</button>
+    <button class="move" onclick="moveRight()">
+      RIGHT ➡️
+    </button>
 
-    <button class="jump" onclick="jump()">🦘 JUMP</button>
-
-  </div>
-
-  <div class="row">
-
-    <button class="attack" onclick="punch()">👊 PUNCH</button>
-
-    <button class="kick" onclick="kick()">🦵 KICK</button>
-
-    <button class="block" onclick="block()">🛡️ BLOCK</button>
-
-    <button class="jump" onclick="jumpAttack()">🦘 JUMP ATTACK</button>
+    <button class="jump" onclick="jump()">
+      🦘 JUMP
+    </button>
 
   </div>
 
   <div class="row">
 
-    <button class="combo" onclick="comboAttack()">🔥 4-HIT COMBO</button>
+    <button class="attack" onclick="punch()">
+      👊 PUNCH
+    </button>
 
-    <button id="specialBtn" class="special" onclick="specialAttack()">⚡ SPECIAL</button>
+    <button class="kick" onclick="kick()">
+      🦵 KICK
+    </button>
 
-    <button class="restart" onclick="restartGame()">🔄 RESTART</button>
+    <button class="block" onclick="block()">
+      🛡️ BLOCK
+    </button>
+
+    <button class="jump" onclick="jumpAttack()">
+      🦘 JUMP ATTACK
+    </button>
+
+  </div>
+
+  <div class="row">
+
+    <button class="combo" onclick="comboAttack()">
+      🔥 4-HIT COMBO
+    </button>
+
+    <button id="specialBtn" class="special" onclick="specialAttack()">
+      ⚡ SPECIAL
+    </button>
+
+    <button class="restart" onclick="restartGame()">
+      🔄 RESTART
+    </button>
 
   </div>
 
@@ -887,239 +919,386 @@ REALISTIC ARENA • COMBO • SPECIAL • FIGHT
 
 <script>
 
-let playerHP=100;
-let enemyHP=100;
+/* =========================
+   GAME VARIABLES
+========================= */
 
-let playerEnergy=0;
-let enemyEnergy=0;
+let playerHP = 100;
+let enemyHP = 100;
 
-let playerX=70;
+let playerEnergy = 0;
+let enemyEnergy = 0;
 
-let round=1;
+let playerX = 70;
 
-let playerWins=0;
-let enemyWins=0;
+let round = 1;
 
-let blocking=false;
-let jumping=false;
-let comboBusy=false;
-let gameOver=false;
+let playerWins = 0;
+let enemyWins = 0;
 
-let enemyTimer=null;
+let blocking = false;
+let jumping = false;
+let comboBusy = false;
+let gameOver = false;
 
-const player=document.getElementById("player");
-const enemy=document.getElementById("enemy");
-const arena=document.getElementById("arena");
+let enemyTimer = null;
+let roundTimer = null;
 
-const AudioContext=window.AudioContext||window.webkitAudioContext;
-let audio;
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const player =
+document.getElementById("player");
+
+const enemy =
+document.getElementById("enemy");
+
+const arena =
+document.getElementById("arena");
+
+const roundScreen =
+document.getElementById("roundScreen");
+
+
+/* =========================
+   SOUND
+========================= */
+
+const AudioContext =
+window.AudioContext ||
+window.webkitAudioContext;
+
+let audio = null;
 
 function sound(type){
 
   try{
 
-    if(!audio)
-      audio=new AudioContext();
+    if(!audio){
+      audio = new AudioContext();
+    }
 
-    const osc=audio.createOscillator();
-    const gain=audio.createGain();
+    if(audio.state === "suspended"){
+      audio.resume();
+    }
+
+    const osc =
+    audio.createOscillator();
+
+    const gain =
+    audio.createGain();
 
     osc.connect(gain);
     gain.connect(audio.destination);
 
-    const frequencies={
-      hit:140,
-      kick:90,
-      jump:380,
-      special:650,
-      critical:900,
-      win:800
-    };
+    if(type === "hit")
+      osc.frequency.value = 140;
 
-    osc.frequency.value=frequencies[type]||200;
-    gain.gain.value=.12;
+    if(type === "kick")
+      osc.frequency.value = 90;
+
+    if(type === "jump")
+      osc.frequency.value = 380;
+
+    if(type === "special")
+      osc.frequency.value = 650;
+
+    if(type === "critical")
+      osc.frequency.value = 900;
+
+    if(type === "win")
+      osc.frequency.value = 800;
+
+    gain.gain.value = .12;
 
     osc.start();
 
     setTimeout(()=>{
-      osc.stop();
+      try{
+        osc.stop();
+      }catch(e){}
     },140);
 
   }catch(e){}
 
 }
 
+
+/* =========================
+   UI
+========================= */
+
 function updateBars(){
 
-  document.getElementById("playerHP").style.width=playerHP+"%";
-  document.getElementById("enemyHP").style.width=enemyHP+"%";
+  document.getElementById(
+    "playerHP"
+  ).style.width =
+    Math.max(0,playerHP) + "%";
 
-  document.getElementById("playerEnergy").style.width=playerEnergy+"%";
-  document.getElementById("enemyEnergy").style.width=enemyEnergy+"%";
+  document.getElementById(
+    "enemyHP"
+  ).style.width =
+    Math.max(0,enemyHP) + "%";
 
-  document.getElementById("roundNumber").innerText=round;
+  document.getElementById(
+    "playerEnergy"
+  ).style.width =
+    Math.min(100,playerEnergy) + "%";
 
-  const btn=document.getElementById("specialBtn");
+  document.getElementById(
+    "enemyEnergy"
+  ).style.width =
+    Math.min(100,enemyEnergy) + "%";
 
-  if(playerEnergy<100)
+  document.getElementById(
+    "roundNumber"
+  ).innerText = round;
+
+  const btn =
+  document.getElementById("specialBtn");
+
+  if(playerEnergy < 100){
     btn.classList.add("disabled");
-  else
+  }else{
     btn.classList.remove("disabled");
+  }
+
 }
+
+
+/* =========================
+   MESSAGE
+========================= */
 
 function message(text){
-  document.getElementById("message").innerText=text;
+
+  document.getElementById(
+    "message"
+  ).innerText = text;
+
 }
+
+
+/* =========================
+   MOVEMENT
+========================= */
 
 function moveLeft(){
 
-  if(gameOver)return;
+  if(gameOver || roundScreen.classList.contains("hidden") === false)
+    return;
 
-  playerX-=25;
+  playerX -= 25;
 
-  if(playerX<10)
-    playerX=10;
+  if(playerX < 10)
+    playerX = 10;
 
-  player.style.left=playerX+"px";
+  player.style.left =
+    playerX + "px";
+
 }
+
 
 function moveRight(){
 
-  if(gameOver)return;
+  if(gameOver || roundScreen.classList.contains("hidden") === false)
+    return;
 
-  playerX+=25;
+  playerX += 25;
 
-  const max=arena.clientWidth-110;
+  const max =
+    arena.clientWidth - 80;
 
-  if(playerX>max)
-    playerX=max;
+  if(playerX > max)
+    playerX = max;
 
-  player.style.left=playerX+"px";
+  player.style.left =
+    playerX + "px";
+
 }
+
+
+/* =========================
+   JUMP
+========================= */
 
 function jump(){
 
-  if(gameOver||jumping)return;
+  if(
+    gameOver ||
+    jumping ||
+    !roundScreen.classList.contains("hidden")
+  )
+    return;
 
-  jumping=true;
+  jumping = true;
 
   sound("jump");
 
-  player.classList.add("jumpAnim");
+  player.classList.add(
+    "jumpAnim"
+  );
 
   message("🦘 JUMP!");
 
   setTimeout(()=>{
 
-    player.classList.remove("jumpAnim");
-    jumping=false;
+    player.classList.remove(
+      "jumpAnim"
+    );
+
+    jumping = false;
 
   },550);
+
 }
 
+
+/* =========================
+   ANIMATION
+========================= */
+
 function attackAnimation(type){
+
+  player.classList.remove(
+    "punchAnim",
+    "kickAnim"
+  );
+
+  void player.offsetWidth;
 
   player.classList.add(type);
 
   setTimeout(()=>{
+
     player.classList.remove(type);
-  },400);
+
+  },350);
+
 }
+
 
 function hitAnimation(){
 
-  enemy.classList.add("hitAnim");
+  enemy.classList.remove(
+    "hitAnim"
+  );
 
-  arena.classList.add("shake");
+  void enemy.offsetWidth;
+
+  enemy.classList.add(
+    "hitAnim"
+  );
+
+  arena.classList.remove(
+    "shake"
+  );
+
+  void arena.offsetWidth;
+
+  arena.classList.add(
+    "shake"
+  );
 
   setTimeout(()=>{
-    enemy.classList.remove("hitAnim");
-    arena.classList.remove("shake");
+
+    enemy.classList.remove(
+      "hitAnim"
+    );
+
   },300);
+
 }
 
-/* HIT SPARKS */
 
-function sparks(){
-
-  for(let i=0;i<10;i++){
-
-    const s=document.createElement("div");
-
-    s.className="spark";
-
-    s.style.left=(enemy.offsetLeft+45)+"px";
-    s.style.top=(enemy.offsetTop+55)+"px";
-
-    s.style.setProperty(
-      "--x",
-      (Math.random()*100-50)+"px"
-    );
-
-    s.style.setProperty(
-      "--y",
-      (Math.random()*100-50)+"px"
-    );
-
-    arena.appendChild(s);
-
-    setTimeout(()=>{
-      s.remove();
-    },500);
-  }
-}
+/* =========================
+   FLASH
+========================= */
 
 function flash(){
 
-  const f=document.createElement("div");
+  const f =
+  document.createElement("div");
 
-  f.className="flash";
+  f.className = "flash";
 
-  f.style.left=(enemy.offsetLeft-20)+"px";
-  f.style.top=(enemy.offsetTop+25)+"px";
+  f.style.left =
+    (enemy.offsetLeft - 35) + "px";
+
+  f.style.top =
+    (enemy.offsetTop - 15) + "px";
 
   arena.appendChild(f);
 
-  sparks();
-
   setTimeout(()=>{
     f.remove();
-  },450);
+  },400);
+
 }
 
-function damageText(value,critical=false){
 
-  const d=document.createElement("div");
+/* =========================
+   DAMAGE TEXT
+========================= */
 
-  d.className=critical?"critical":"damage";
+function damageText(
+  value,
+  critical = false
+){
 
-  d.innerText=critical
-    ?"💥 CRITICAL! -"+value
-    :"-"+value;
+  const d =
+  document.createElement("div");
 
-  d.style.left=(enemy.offsetLeft+5)+"px";
-  d.style.top=(enemy.offsetTop-20)+"px";
+  d.className =
+    critical
+    ? "critical"
+    : "damage";
+
+  d.innerText =
+    critical
+    ? "💥 CRITICAL - " + value
+    : "-" + value;
+
+  d.style.left =
+    (enemy.offsetLeft + 5) + "px";
+
+  d.style.top =
+    (enemy.offsetTop - 20) + "px";
 
   arena.appendChild(d);
 
   setTimeout(()=>{
     d.remove();
   },800);
+
 }
+
+
+/* =========================
+   DAMAGE
+========================= */
 
 function dealDamage(amount){
 
-  const critical=Math.random()<.18;
+  const critical =
+    Math.random() < .18;
 
-  if(critical)
-    amount*=2;
+  if(critical){
+    amount *= 2;
+    amount = Math.floor(amount);
+  }
 
-  enemyHP-=amount;
+  enemyHP -= amount;
 
-  if(enemyHP<0)
-    enemyHP=0;
+  if(enemyHP < 0)
+    enemyHP = 0;
 
-  damageText(amount,critical);
+  damageText(
+    amount,
+    critical
+  );
 
   if(critical)
     sound("critical");
@@ -1127,45 +1306,74 @@ function dealDamage(amount){
     sound("hit");
 
   hitAnimation();
-  sparks();
+
+  updateBars();
+
+  if(enemyHP <= 0){
+
+    setTimeout(()=>{
+      winRound();
+    },250);
+
+  }
 
   return amount;
+
 }
+
+
+/* =========================
+   PUNCH
+========================= */
 
 function punch(){
 
-  if(gameOver||comboBusy)return;
+  if(
+    gameOver ||
+    comboBusy ||
+    enemyHP <= 0 ||
+    !roundScreen.classList.contains("hidden")
+  )
+    return;
 
-  const damage=Math.floor(Math.random()*6)+8;
-
-  dealDamage(damage);
-
-  playerEnergy+=15;
-
-  if(playerEnergy>100)
-    playerEnergy=100;
+  const damage =
+    Math.floor(Math.random()*6) + 8;
 
   attackAnimation("punchAnim");
 
   message("👊 PUNCH!");
 
+  dealDamage(damage);
+
+  playerEnergy += 15;
+
+  if(playerEnergy > 100)
+    playerEnergy = 100;
+
   updateBars();
 
-  enemyTurn();
+  if(enemyHP > 0)
+    enemyTurn();
+
 }
+
+
+/* =========================
+   KICK
+========================= */
 
 function kick(){
 
-  if(gameOver||comboBusy)return;
+  if(
+    gameOver ||
+    comboBusy ||
+    enemyHP <= 0 ||
+    !roundScreen.classList.contains("hidden")
+  )
+    return;
 
-  const damage=Math.floor(Math.random()*8)+12;
-
-  dealDamage(damage);
-
-  playerEnergy+=20;
-
-  if(playerEnergy>100)
-    playerEnergy=100;
+  const damage =
+    Math.floor(Math.random()*8) + 12;
 
   attackAnimation("kickAnim");
 
@@ -1173,33 +1381,60 @@ function kick(){
 
   message("🦵 POWER KICK!");
 
+  dealDamage(damage);
+
+  playerEnergy += 20;
+
+  if(playerEnergy > 100)
+    playerEnergy = 100;
+
   updateBars();
 
-  enemyTurn();
+  if(enemyHP > 0)
+    enemyTurn();
+
 }
+
+
+/* =========================
+   JUMP ATTACK
+========================= */
 
 function jumpAttack(){
 
-  if(gameOver||jumping||comboBusy)return;
+  if(
+    gameOver ||
+    jumping ||
+    comboBusy ||
+    enemyHP <= 0 ||
+    !roundScreen.classList.contains("hidden")
+  )
+    return;
 
-  jumping=true;
+  jumping = true;
 
-  player.classList.add("jumpAttackAnim");
+  player.classList.add(
+    "jumpAttackAnim"
+  );
 
   sound("jump");
 
+  message("🦘 JUMP ATTACK!");
+
   setTimeout(()=>{
 
-    const damage=Math.floor(Math.random()*10)+16;
+    if(gameOver)
+      return;
+
+    const damage =
+      Math.floor(Math.random()*10) + 16;
 
     dealDamage(damage);
 
-    playerEnergy+=20;
+    playerEnergy += 20;
 
-    if(playerEnergy>100)
-      playerEnergy=100;
-
-    message("🦘💥 JUMP ATTACK!");
+    if(playerEnergy > 100)
+      playerEnergy = 100;
 
     updateBars();
 
@@ -1207,319 +1442,524 @@ function jumpAttack(){
 
   setTimeout(()=>{
 
-    player.classList.remove("jumpAttackAnim");
+    player.classList.remove(
+      "jumpAttackAnim"
+    );
 
-    jumping=false;
+    jumping = false;
 
-    enemyTurn();
+    if(!gameOver && enemyHP > 0)
+      enemyTurn();
 
   },500);
+
 }
+
+
+/* =========================
+   BLOCK
+========================= */
 
 function block(){
 
-  if(gameOver)return;
+  if(
+    gameOver ||
+    !roundScreen.classList.contains("hidden")
+  )
+    return;
 
-  blocking=true;
+  blocking = true;
 
-  player.classList.add("blockAnim");
+  player.classList.add(
+    "blockAnim"
+  );
 
   message("🛡️ BLOCKING!");
 
   setTimeout(()=>{
 
-    blocking=false;
+    blocking = false;
 
-    player.classList.remove("blockAnim");
+    player.classList.remove(
+      "blockAnim"
+    );
 
   },900);
+
 }
+
+
+/* =========================
+   COMBO
+========================= */
 
 function comboAttack(){
 
-  if(gameOver||comboBusy)return;
+  if(
+    gameOver ||
+    comboBusy ||
+    enemyHP <= 0 ||
+    !roundScreen.classList.contains("hidden")
+  )
+    return;
 
-  comboBusy=true;
+  comboBusy = true;
 
   message("🔥 4-HIT COMBO!");
 
-  let hits=0;
+  let hits = 0;
 
-  const interval=setInterval(()=>{
+  const interval =
+  setInterval(()=>{
 
-    if(gameOver){
+    if(
+      gameOver ||
+      enemyHP <= 0
+    ){
 
       clearInterval(interval);
-      comboBusy=false;
+      comboBusy = false;
+
       return;
     }
 
     hits++;
 
-    const damage=Math.floor(Math.random()*4)+5;
+    const damage =
+      Math.floor(Math.random()*4) + 5;
 
     dealDamage(damage);
 
-    playerEnergy+=7;
+    playerEnergy += 7;
 
-    if(playerEnergy>100)
-      playerEnergy=100;
+    if(playerEnergy > 100)
+      playerEnergy = 100;
 
     attackAnimation(
-      hits%2
-      ?"punchAnim"
-      :"kickAnim"
+      hits % 2
+      ? "punchAnim"
+      : "kickAnim"
     );
 
     updateBars();
 
-    if(hits>=4){
+    if(hits >= 4){
 
       clearInterval(interval);
 
-      comboBusy=false;
+      comboBusy = false;
 
-      message("🔥 COMBO COMPLETE!");
+      if(enemyHP > 0){
 
-      setTimeout(()=>{
-        enemyTurn();
-      },250);
+        message(
+          "🔥 COMBO COMPLETE!"
+        );
+
+        setTimeout(()=>{
+          if(!gameOver)
+            enemyTurn();
+        },300);
+
+      }
+
     }
 
   },180);
+
 }
+
+
+/* =========================
+   SPECIAL
+========================= */
 
 function specialAttack(){
 
-  if(gameOver)return;
+  if(
+    gameOver ||
+    !roundScreen.classList.contains("hidden")
+  )
+    return;
 
-  if(playerEnergy<100){
+  if(playerEnergy < 100){
 
-    message("⚡ ENERGY NOT FULL!");
+    message(
+      "⚡ ENERGY NOT FULL!"
+    );
 
     return;
   }
 
-  playerEnergy=0;
+  playerEnergy = 0;
 
-  const damage=Math.floor(Math.random()*11)+30;
+  const damage =
+    Math.floor(Math.random()*11) + 30;
 
-  enemyHP-=damage;
+  enemyHP -= damage;
 
-  if(enemyHP<0)
-    enemyHP=0;
-
-  player.classList.add("specialAnim");
+  if(enemyHP < 0)
+    enemyHP = 0;
 
   flash();
 
   sound("special");
 
-  damageText(damage,false);
+  damageText(
+    damage,
+    false
+  );
 
-  message("⚡🔥 SPECIAL ATTACK!");
+  hitAnimation();
+
+  message(
+    "⚡🔥 SPECIAL ATTACK!"
+  );
 
   updateBars();
 
-  setTimeout(()=>{
-    player.classList.remove("specialAnim");
-  },600);
+  if(enemyHP <= 0){
 
-  enemyTurn();
-}
+    setTimeout(()=>{
+      winRound();
+    },300);
 
-function enemyTurn(){
-
-  if(enemyHP<=0){
-
-    winRound();
     return;
   }
 
+  enemyTurn();
+
+}
+
+
+/* =========================
+   ENEMY AI
+========================= */
+
+function enemyTurn(){
+
+  if(
+    gameOver ||
+    enemyHP <= 0
+  )
+    return;
+
   clearTimeout(enemyTimer);
 
-  enemyTimer=setTimeout(()=>{
+  enemyTimer =
+  setTimeout(()=>{
 
-    if(gameOver)return;
+    if(
+      gameOver ||
+      playerHP <= 0
+    )
+      return;
 
     let damage;
 
-    const special=
-      enemyEnergy>=100 &&
-      Math.random()<.30;
+    const special =
+      enemyEnergy >= 100 &&
+      Math.random() < .30;
 
     if(special){
 
-      enemyEnergy=0;
+      enemyEnergy = 0;
 
-      damage=Math.floor(Math.random()*12)+24;
+      damage =
+        Math.floor(Math.random()*12) + 24;
 
-      message("🔴 ENEMY SPECIAL!");
+      message(
+        "🔴 ENEMY SPECIAL!"
+      );
 
     }else{
 
-      damage=Math.floor(Math.random()*9)+6;
+      damage =
+        Math.floor(Math.random()*9) + 6;
 
-      enemyEnergy+=18;
+      enemyEnergy += 18;
 
-      if(enemyEnergy>100)
-        enemyEnergy=100;
+      if(enemyEnergy > 100)
+        enemyEnergy = 100;
 
-      message("💥 ENEMY ATTACK!");
+      message(
+        "💥 ENEMY ATTACK!"
+      );
+
     }
 
     if(blocking){
 
-      damage=Math.floor(damage/2);
+      damage =
+        Math.floor(damage / 2);
 
-      message("🛡️ BLOCKED! -"+damage);
+      message(
+        "🛡️ BLOCKED! -" + damage
+      );
+
     }
 
-    playerHP-=damage;
+    playerHP -= damage;
 
-    if(playerHP<0)
-      playerHP=0;
+    if(playerHP < 0)
+      playerHP = 0;
 
     updateBars();
 
-    if(playerHP<=0){
+    if(playerHP <= 0){
 
       loseRound();
-      return;
+
     }
 
   },650);
+
 }
 
+
+/* =========================
+   WIN ROUND
+========================= */
+
 function winRound(){
+
+  if(gameOver)
+    return;
+
+  clearTimeout(enemyTimer);
 
   playerWins++;
 
   sound("win");
 
-  if(playerWins>=2){
+  if(playerWins >= 2){
 
-    gameOver=true;
+    gameOver = true;
 
-    showMatchWinner("🏆 YOU WIN THE MATCH!");
+    showMatchWinner(
+      "🏆 YOU WIN THE MATCH!"
+    );
 
     return;
   }
 
   nextRound(true);
+
 }
+
+
+/* =========================
+   LOSE ROUND
+========================= */
 
 function loseRound(){
 
+  if(gameOver)
+    return;
+
+  clearTimeout(enemyTimer);
+
   enemyWins++;
 
-  if(enemyWins>=2){
+  if(enemyWins >= 2){
 
-    gameOver=true;
+    gameOver = true;
 
-    showMatchWinner("💀 ENEMY WINS THE MATCH!");
+    showMatchWinner(
+      "💀 ENEMY WINS THE MATCH!"
+    );
 
     return;
   }
 
   nextRound(false);
+
 }
+
+
+/* =========================
+   NEXT ROUND
+========================= */
 
 function nextRound(playerWon){
 
+  clearTimeout(enemyTimer);
+  clearTimeout(roundTimer);
+
   round++;
 
-  playerHP=100;
-  enemyHP=100;
+  playerHP = 100;
+  enemyHP = 100;
 
-  playerEnergy=0;
-  enemyEnergy=0;
+  playerEnergy = 0;
+  enemyEnergy = 0;
 
-  blocking=false;
-  jumping=false;
-  comboBusy=false;
+  blocking = false;
+  jumping = false;
+  comboBusy = false;
 
-  playerX=70;
+  playerX = 70;
 
-  player.style.left=playerX+"px";
+  player.style.left =
+    playerX + "px";
+
+  player.classList.remove(
+    "punchAnim",
+    "kickAnim",
+    "hitAnim",
+    "jumpAnim",
+    "jumpAttackAnim",
+    "blockAnim"
+  );
+
+  enemy.classList.remove(
+    "hitAnim"
+  );
 
   updateBars();
 
-  const screen=document.getElementById("roundScreen");
+  const title =
+    document.getElementById(
+      "roundTitle"
+    );
 
-  const title=document.getElementById("roundTitle");
+  const text =
+    document.getElementById(
+      "roundText"
+    );
 
-  const text=document.getElementById("roundText");
+  title.innerText =
+    "🏆 ROUND " + round;
 
-  title.innerText="🏆 ROUND "+round;
+  text.innerText =
+    playerWon
+    ? "🔥 ROUND WON! GET READY!"
+    : "⚔️ COMEBACK TIME!";
 
-  text.innerText=playerWon
-    ?"🔥 ROUND WON! KEEP FIGHTING!"
-    :"⚔️ COMEBACK TIME!";
+  roundScreen.classList.remove(
+    "hidden"
+  );
 
-  screen.classList.remove("hidden");
-
+  roundTimer =
   setTimeout(()=>{
 
-    screen.classList.add("hidden");
+    roundScreen.classList.add(
+      "hidden"
+    );
 
-    message("🔥 ROUND "+round+" — FIGHT!");
+    message(
+      "🔥 ROUND " + round + " — FIGHT!"
+    );
 
   },1500);
+
 }
+
+
+/* =========================
+   MATCH WINNER
+========================= */
 
 function showMatchWinner(text){
 
-  const screen=document.getElementById("roundScreen");
+  clearTimeout(enemyTimer);
 
-  const title=document.getElementById("roundTitle");
+  const title =
+    document.getElementById(
+      "roundTitle"
+    );
 
-  const sub=document.getElementById("roundText");
+  const sub =
+    document.getElementById(
+      "roundText"
+    );
 
-  title.innerText=text;
+  title.innerText = text;
 
-  sub.innerText=
-    "🏆 "+playerWins+" - "+enemyWins+" 🏆";
+  sub.innerText =
+    "🏆 SCORE: " +
+    playerWins +
+    " - " +
+    enemyWins +
+    " 🏆";
 
-  screen.classList.remove("hidden");
+  roundScreen.classList.remove(
+    "hidden"
+  );
 
   message(text);
+
 }
+
+
+/* =========================
+   RESTART
+========================= */
 
 function restartGame(){
 
   clearTimeout(enemyTimer);
+  clearTimeout(roundTimer);
 
-  playerHP=100;
-  enemyHP=100;
+  playerHP = 100;
+  enemyHP = 100;
 
-  playerEnergy=0;
-  enemyEnergy=0;
+  playerEnergy = 0;
+  enemyEnergy = 0;
 
-  playerX=70;
+  playerX = 70;
 
-  round=1;
+  round = 1;
 
-  playerWins=0;
-  enemyWins=0;
+  playerWins = 0;
+  enemyWins = 0;
 
-  blocking=false;
-  jumping=false;
-  comboBusy=false;
-  gameOver=false;
+  blocking = false;
+  jumping = false;
+  comboBusy = false;
+  gameOver = false;
 
-  player.style.left=playerX+"px";
+  player.style.left =
+    playerX + "px";
 
-  document
-    .getElementById("roundScreen")
-    .classList.add("hidden");
+  player.classList.remove(
+    "punchAnim",
+    "kickAnim",
+    "hitAnim",
+    "jumpAnim",
+    "jumpAttackAnim",
+    "blockAnim"
+  );
+
+  enemy.classList.remove(
+    "hitAnim"
+  );
+
+  roundScreen.classList.add(
+    "hidden"
+  );
 
   updateBars();
 
-  message("🔥 ROUND 1 — FIGHT!");
+  message(
+    "🔥 ROUND 1 — FIGHT!"
+  );
+
 }
 
+
+/* =========================
+   START GAME
+========================= */
+
+roundScreen.classList.add(
+  "hidden"
+);
+
 updateBars();
+
+message(
+  "🔥 ROUND 1 — FIGHT!"
+);
 
 </script>
 
