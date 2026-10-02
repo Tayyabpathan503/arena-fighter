@@ -1,20 +1,20 @@
-<!DOCTYPE html>
+
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Arena Fighter 2.0</title>
 
 <style>
 *{
   box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
   user-select:none;
+  -webkit-tap-highlight-color:transparent;
 }
 
 body{
   margin:0;
-  min-height:100vh;
   background:#070914;
   color:white;
   font-family:Arial,sans-serif;
@@ -22,16 +22,15 @@ body{
 }
 
 h1{
-  margin:12px 0 4px;
-  font-size:27px;
-  color:#fff;
-  text-shadow:0 0 12px #00d9ff;
+  margin:10px 0 2px;
+  font-size:25px;
+  text-shadow:0 0 14px #00d9ff;
 }
 
 .subtitle{
-  color:#8e9bb5;
-  font-size:13px;
-  margin-bottom:12px;
+  color:#91a0bd;
+  font-size:12px;
+  margin-bottom:8px;
 }
 
 .status{
@@ -39,64 +38,55 @@ h1{
   max-width:900px;
   margin:auto;
   display:flex;
-  gap:10px;
+  gap:8px;
 }
 
 .statusBox{
   flex:1;
   background:#111827;
-  border:1px solid #27344f;
+  border:1px solid #293750;
   border-radius:12px;
-  padding:8px;
+  padding:7px;
 }
 
 .name{
+  font-size:12px;
   font-weight:bold;
-  font-size:13px;
-  margin-bottom:5px;
 }
 
 .bar{
-  height:16px;
+  height:14px;
+  margin-top:4px;
   background:#252b3a;
   border-radius:20px;
   overflow:hidden;
-  margin:4px 0;
 }
 
 .fill{
   height:100%;
   width:100%;
-  transition:width .25s;
+  transition:width .2s;
 }
 
-.hp{
-  background:#20e070;
-}
-
-.enemyhp{
-  background:#ff4055;
-}
-
-.energy{
-  background:#00cfff;
-}
+.hp{background:#20e070}
+.enemyhp{background:#ff4055}
+.energy{background:#00cfff}
 
 .arena{
   position:relative;
   width:94%;
   max-width:900px;
-  height:430px;
-  margin:14px auto;
+  height:420px;
+  margin:10px auto;
   overflow:hidden;
   border:2px solid #34415e;
-  border-radius:20px;
+  border-radius:18px;
   background:
-    radial-gradient(circle at 50% 20%,#263c66 0,#12182b 45%,#080b15 100%);
+  radial-gradient(circle at 50% 20%,#29416b,#12182b 48%,#080b15);
   box-shadow:0 0 30px rgba(0,200,255,.15);
 }
 
-.arena::before{
+.arena:before{
   content:"";
   position:absolute;
   left:0;
@@ -104,29 +94,28 @@ h1{
   top:55%;
   height:2px;
   background:#38506d;
-  box-shadow:0 40px 0 #25344c,0 80px 0 #1b293e;
+  box-shadow:0 45px 0 #25344c,0 90px 0 #1b293e;
 }
 
 .ground{
   position:absolute;
   bottom:0;
   width:100%;
-  height:65px;
-  background:linear-gradient(#182235,#0c101b);
+  height:62px;
+  background:linear-gradient(#182235,#0b101a);
   border-top:2px solid #52647f;
 }
 
 .fighter{
   position:absolute;
-  bottom:65px;
+  bottom:62px;
   width:58px;
   height:100px;
-  border-radius:18px 18px 9px 9px;
-  transition:left .12s,right .12s;
+  border-radius:18px 18px 8px 8px;
   z-index:3;
 }
 
-.fighter::before{
+.fighter:before{
   content:"";
   position:absolute;
   width:42px;
@@ -138,12 +127,12 @@ h1{
   border:3px solid #111;
 }
 
-.fighter::after{
+.fighter:after{
   content:"";
   position:absolute;
-  width:75px;
+  width:76px;
   height:10px;
-  left:-8px;
+  left:-9px;
   bottom:-12px;
   border-radius:50%;
   background:rgba(0,0,0,.4);
@@ -162,36 +151,41 @@ h1{
 }
 
 .attackAnim{
-  animation:attack .25s;
+  animation:attack .22s;
 }
 
 .hitAnim{
-  animation:hit .25s;
+  animation:hit .22s;
+}
+
+.jumpAnim{
+  animation:jump .55s ease;
 }
 
 @keyframes attack{
-  50%{
-    transform:translateX(18px) scale(1.08);
-  }
+  50%{transform:translateX(22px) scale(1.08)}
 }
 
 @keyframes hit{
-  25%{transform:translateX(-12px);}
-  50%{transform:translateX(12px);}
-  75%{transform:translateX(-7px);}
+  25%{transform:translateX(-12px)}
+  50%{transform:translateX(12px)}
+  75%{transform:translateX(-6px)}
+}
+
+@keyframes jump{
+  50%{transform:translateY(-120px)}
 }
 
 #message{
-  min-height:30px;
-  font-size:20px;
+  min-height:28px;
+  font-size:18px;
   font-weight:bold;
-  color:#fff;
   text-shadow:0 0 10px #00d9ff;
 }
 
 .controls{
   width:96%;
-  max-width:800px;
+  max-width:850px;
   margin:auto;
 }
 
@@ -199,20 +193,20 @@ h1{
   display:flex;
   justify-content:center;
   flex-wrap:wrap;
-  gap:8px;
-  margin:8px 0;
+  gap:7px;
+  margin:7px 0;
 }
 
 button{
-  min-width:105px;
-  padding:14px 12px;
+  min-width:92px;
+  padding:13px 9px;
   border:0;
-  border-radius:13px;
+  border-radius:12px;
   color:white;
-  font-size:15px;
+  font-size:13px;
   font-weight:bold;
   background:#202b40;
-  box-shadow:0 4px 0 #0b0f18;
+  box-shadow:0 4px 0 #080c13;
 }
 
 button:active{
@@ -220,33 +214,21 @@ button:active{
   box-shadow:none;
 }
 
-.attack{
-  background:#e87918;
-}
-
-.kick{
-  background:#d83b45;
-}
-
-.block{
-  background:#4055c8;
-}
-
+.attack{background:#e87918}
+.kick{background:#d83b45}
+.block{background:#4055c8}
 .special{
   background:linear-gradient(135deg,#8e24aa,#d81bff);
-  box-shadow:0 0 14px rgba(216,27,255,.35);
 }
-
-.move{
-  background:#26344d;
+.jump{background:#087f8c}
+.combo{
+  background:linear-gradient(135deg,#ff7b00,#ff1744);
 }
-
-.restart{
-  background:#149447;
-}
+.move{background:#26344d}
+.restart{background:#149447}
 
 .disabled{
-  opacity:.45;
+  opacity:.4;
 }
 
 .flash{
@@ -261,25 +243,34 @@ button:active{
 }
 
 @keyframes flash{
-  from{transform:scale(.2);opacity:1;}
-  to{transform:scale(1.7);opacity:0;}
+  from{transform:scale(.2);opacity:1}
+  to{transform:scale(1.7);opacity:0}
+}
+
+.comboText{
+  position:absolute;
+  color:#fff;
+  font-size:25px;
+  font-weight:bold;
+  text-shadow:0 0 12px #ff7300;
+  animation:comboText .7s forwards;
+  z-index:20;
+  pointer-events:none;
+}
+
+@keyframes comboText{
+  from{transform:translateY(0);opacity:1}
+  to{transform:translateY(-70px);opacity:0}
 }
 
 @media(max-width:500px){
-
-  .arena{
-    height:350px;
-  }
-
+  .arena{height:340px}
   button{
-    min-width:90px;
-    padding:12px 8px;
-    font-size:13px;
+    min-width:82px;
+    padding:11px 7px;
+    font-size:12px;
   }
-
-  h1{
-    font-size:23px;
-  }
+  h1{font-size:22px}
 }
 </style>
 </head>
@@ -287,7 +278,7 @@ button:active{
 <body>
 
 <h1>⚔️ ARENA FIGHTER 2.0</h1>
-<div class="subtitle">Battle • Block • Charge • Destroy</div>
+<div class="subtitle">Battle • Jump • Combo • Special</div>
 
 <div class="status">
 
@@ -333,6 +324,7 @@ button:active{
   <div class="row">
     <button class="move" onclick="moveLeft()">⬅️ LEFT</button>
     <button class="move" onclick="moveRight()">RIGHT ➡️</button>
+    <button class="jump" onclick="jump()">🦘 JUMP</button>
   </div>
 
   <div class="row">
@@ -342,6 +334,11 @@ button:active{
   </div>
 
   <div class="row">
+
+    <button class="combo" onclick="comboAttack()">
+      🔥 COMBO
+    </button>
+
     <button id="specialBtn" class="special" onclick="specialAttack()">
       ⚡ SPECIAL
     </button>
@@ -349,95 +346,188 @@ button:active{
     <button class="restart" onclick="restartGame()">
       🔄 RESTART
     </button>
+
   </div>
 
 </div>
 
 <script>
 
-let playerHP = 100;
-let enemyHP = 100;
+let playerHP=100;
+let enemyHP=100;
 
-let playerEnergy = 0;
-let enemyEnergy = 0;
+let playerEnergy=0;
+let enemyEnergy=0;
 
-let playerX = 70;
+let playerX=70;
 
-let blocking = false;
-let gameOver = false;
-let enemyTimer = null;
+let blocking=false;
+let jumping=false;
+let gameOver=false;
 
-const player = document.getElementById("player");
-const enemy = document.getElementById("enemy");
-const arena = document.getElementById("arena");
+let enemyTimer=null;
+let comboBusy=false;
+
+/* SOUND */
+
+const AudioContext =
+window.AudioContext || window.webkitAudioContext;
+
+let audio;
+
+function sound(type){
+
+  try{
+
+    if(!audio)
+      audio=new AudioContext();
+
+    const osc=audio.createOscillator();
+    const gain=audio.createGain();
+
+    osc.connect(gain);
+    gain.connect(audio.destination);
+
+    if(type==="hit"){
+      osc.frequency.value=130;
+      gain.gain.value=.12;
+    }
+
+    if(type==="kick"){
+      osc.frequency.value=90;
+      gain.gain.value=.14;
+    }
+
+    if(type==="special"){
+      osc.frequency.value=600;
+      gain.gain.value=.15;
+    }
+
+    if(type==="jump"){
+      osc.frequency.value=350;
+      gain.gain.value=.08;
+    }
+
+    if(type==="win"){
+      osc.frequency.value=800;
+      gain.gain.value=.15;
+    }
+
+    osc.start();
+
+    setTimeout(()=>{
+      osc.stop();
+    },150);
+
+  }catch(e){}
+
+}
+
+const player=document.getElementById("player");
+const enemy=document.getElementById("enemy");
+const arena=document.getElementById("arena");
 
 function updateBars(){
 
-  document.getElementById("playerHP").style.width =
-    playerHP + "%";
+  document.getElementById("playerHP").style.width=
+    playerHP+"%";
 
-  document.getElementById("enemyHP").style.width =
-    enemyHP + "%";
+  document.getElementById("enemyHP").style.width=
+    enemyHP+"%";
 
-  document.getElementById("playerEnergy").style.width =
-    playerEnergy + "%";
+  document.getElementById("playerEnergy").style.width=
+    playerEnergy+"%";
 
-  document.getElementById("enemyEnergy").style.width =
-    enemyEnergy + "%";
+  document.getElementById("enemyEnergy").style.width=
+    enemyEnergy+"%";
 
-  const specialBtn =
-    document.getElementById("specialBtn");
+  const btn=document.getElementById("specialBtn");
 
-  if(playerEnergy < 100){
-    specialBtn.classList.add("disabled");
-  }else{
-    specialBtn.classList.remove("disabled");
-  }
+  if(playerEnergy<100)
+    btn.classList.add("disabled");
+  else
+    btn.classList.remove("disabled");
 }
 
 function showMessage(text){
-  document.getElementById("message").innerText = text;
+  document.getElementById("message").innerText=text;
 }
 
 function moveLeft(){
 
-  if(gameOver) return;
+  if(gameOver)return;
 
-  playerX -= 25;
+  playerX-=25;
 
-  if(playerX < 10)
-    playerX = 10;
+  if(playerX<10)
+    playerX=10;
 
-  player.style.left = playerX + "px";
+  player.style.left=playerX+"px";
 }
 
 function moveRight(){
 
-  if(gameOver) return;
+  if(gameOver)return;
 
-  playerX += 25;
+  playerX+=25;
 
-  const max =
-    arena.clientWidth - 80;
+  const max=arena.clientWidth-80;
 
-  if(playerX > max)
-    playerX = max;
+  if(playerX>max)
+    playerX=max;
 
-  player.style.left = playerX + "px";
+  player.style.left=playerX+"px";
+}
+
+function jump(){
+
+  if(gameOver || jumping)return;
+
+  jumping=true;
+
+  sound("jump");
+
+  player.classList.add("jumpAnim");
+
+  showMessage("🦘 JUMP!");
+
+  setTimeout(()=>{
+
+    player.classList.remove("jumpAnim");
+    jumping=false;
+
+  },550);
+}
+
+function hitAnimation(){
+
+  enemy.classList.add("hitAnim");
+
+  setTimeout(()=>{
+    enemy.classList.remove("hitAnim");
+  },220);
+}
+
+function attackAnimation(){
+
+  player.classList.add("attackAnim");
+
+  setTimeout(()=>{
+    player.classList.remove("attackAnim");
+  },220);
 }
 
 function effect(){
 
-  const flash =
-    document.createElement("div");
+  const flash=document.createElement("div");
 
-  flash.className = "flash";
+  flash.className="flash";
 
-  flash.style.left =
-    (enemy.offsetLeft - 30) + "px";
+  flash.style.left=
+    (enemy.offsetLeft-30)+"px";
 
-  flash.style.top =
-    (enemy.offsetTop - 10) + "px";
+  flash.style.top=
+    (enemy.offsetTop-10)+"px";
 
   arena.appendChild(flash);
 
@@ -446,40 +536,50 @@ function effect(){
   },400);
 }
 
-function animateHit(){
+function comboText(){
 
-  enemy.classList.add("hitAnim");
+  const text=document.createElement("div");
+
+  text.className="comboText";
+
+  text.innerText="🔥 COMBO!";
+
+  text.style.left=
+    (enemy.offsetLeft-10)+"px";
+
+  text.style.top=
+    (enemy.offsetTop-40)+"px";
+
+  arena.appendChild(text);
 
   setTimeout(()=>{
-    enemy.classList.remove("hitAnim");
-  },250);
+    text.remove();
+  },700);
 }
 
 function punch(){
 
-  if(gameOver) return;
+  if(gameOver)return;
 
-  const damage =
+  sound("hit");
+
+  const damage=
     Math.floor(Math.random()*6)+8;
 
-  enemyHP -= damage;
+  enemyHP-=damage;
 
-  if(enemyHP < 0)
-    enemyHP = 0;
+  if(enemyHP<0)
+    enemyHP=0;
 
-  player.classList.add("attackAnim");
-  animateHit();
+  playerEnergy+=15;
 
-  setTimeout(()=>{
-    player.classList.remove("attackAnim");
-  },250);
+  if(playerEnergy>100)
+    playerEnergy=100;
 
-  playerEnergy += 15;
+  attackAnimation();
+  hitAnimation();
 
-  if(playerEnergy > 100)
-    playerEnergy = 100;
-
-  showMessage("👊 PUNCH  -" + damage);
+  showMessage("👊 PUNCH  -"+damage);
 
   updateBars();
 
@@ -488,29 +588,103 @@ function punch(){
 
 function kick(){
 
-  if(gameOver) return;
+  if(gameOver)return;
 
-  const damage =
+  sound("kick");
+
+  const damage=
     Math.floor(Math.random()*7)+12;
 
-  enemyHP -= damage;
+  enemyHP-=damage;
 
-  if(enemyHP < 0)
-    enemyHP = 0;
+  if(enemyHP<0)
+    enemyHP=0;
 
-  player.classList.add("attackAnim");
-  animateHit();
+  playerEnergy+=20;
+
+  if(playerEnergy>100)
+    playerEnergy=100;
+
+  attackAnimation();
+  hitAnimation();
+
+  showMessage("🦵 KICK  -"+damage);
+
+  updateBars();
+
+  enemyTurn();
+}
+
+function comboAttack(){
+
+  if(gameOver || comboBusy)return;
+
+  comboBusy=true;
+
+  sound("hit");
+
+  let damage=0;
+
+  attackAnimation();
+  hitAnimation();
+
+  damage=
+    Math.floor(Math.random()*8)+18;
+
+  enemyHP-=damage;
+
+  if(enemyHP<0)
+    enemyHP=0;
+
+  playerEnergy+=25;
+
+  if(playerEnergy>100)
+    playerEnergy=100;
+
+  comboText();
+
+  showMessage("🔥 3-HIT COMBO  -"+damage);
+
+  updateBars();
 
   setTimeout(()=>{
-    player.classList.remove("attackAnim");
-  },250);
 
-  playerEnergy += 20;
+    comboBusy=false;
 
-  if(playerEnergy > 100)
-    playerEnergy = 100;
+    enemyTurn();
 
-  showMessage("🦵 KICK  -" + damage);
+  },350);
+}
+
+function specialAttack(){
+
+  if(gameOver)return;
+
+  if(playerEnergy<100){
+
+    showMessage("⚡ ENERGY NOT FULL!");
+
+    return;
+  }
+
+  playerEnergy=0;
+
+  sound("special");
+
+  const damage=
+    Math.floor(Math.random()*11)+30;
+
+  enemyHP-=damage;
+
+  if(enemyHP<0)
+    enemyHP=0;
+
+  effect();
+  hitAnimation();
+
+  showMessage(
+    "⚡🔥 SPECIAL ATTACK! -"+damage
+  );
 
   updateBars();
 
@@ -519,55 +693,26 @@ function kick(){
 
 function block(){
 
-  if(gameOver) return;
+  if(gameOver)return;
 
-  blocking = true;
+  blocking=true;
 
   showMessage("🛡️ BLOCKING!");
 
   setTimeout(()=>{
-    blocking = false;
+
+    blocking=false;
+
   },900);
-}
-
-function specialAttack(){
-
-  if(gameOver) return;
-
-  if(playerEnergy < 100){
-
-    showMessage("⚡ Energy is not full!");
-
-    return;
-  }
-
-  playerEnergy = 0;
-
-  const damage =
-    Math.floor(Math.random()*11)+30;
-
-  enemyHP -= damage;
-
-  if(enemyHP < 0)
-    enemyHP = 0;
-
-  effect();
-  animateHit();
-
-  showMessage(
-    "⚡🔥 SPECIAL ATTACK!  -" + damage
-  );
-
-  updateBars();
-
-  enemyTurn();
 }
 
 function enemyTurn(){
 
-  if(enemyHP <= 0){
+  if(enemyHP<=0){
 
-    gameOver = true;
+    gameOver=true;
+
+    sound("win");
 
     showMessage("🏆 YOU WIN!");
 
@@ -576,69 +721,63 @@ function enemyTurn(){
 
   clearTimeout(enemyTimer);
 
-  enemyTimer = setTimeout(()=>{
+  enemyTimer=setTimeout(()=>{
 
-    if(gameOver) return;
+    if(gameOver)return;
 
     let damage;
 
-    const useSpecial =
-      enemyEnergy >= 100 &&
-      Math.random() < .35;
+    const special=
+      enemyEnergy>=100 &&
+      Math.random()<.35;
 
-    if(useSpecial){
+    if(special){
 
-      enemyEnergy = 0;
+      enemyEnergy=0;
 
-      damage =
+      damage=
         Math.floor(Math.random()*10)+25;
 
-      showMessage(
-        "🔴 ENEMY SPECIAL!  -" + damage
-      );
+      showMessage("🔴 ENEMY SPECIAL!");
 
     }else{
 
-      damage =
+      damage=
         Math.floor(Math.random()*9)+6;
 
-      enemyEnergy += 18;
+      enemyEnergy+=18;
 
-      if(enemyEnergy > 100)
-        enemyEnergy = 100;
+      if(enemyEnergy>100)
+        enemyEnergy=100;
 
-      showMessage(
-        "💥 Enemy attacks!  -" + damage
-      );
+      showMessage("💥 ENEMY ATTACK!");
+
     }
 
     if(blocking){
 
-      damage =
-        Math.floor(damage / 2);
+      damage=Math.floor(damage/2);
 
       showMessage(
-        "🛡️ BLOCKED!  -" + damage
+        "🛡️ BLOCKED! -"+damage
       );
     }
 
-    playerHP -= damage;
+    playerHP-=damage;
 
-    if(playerHP < 0)
-      playerHP = 0;
+    if(playerHP<0)
+      playerHP=0;
 
     updateBars();
 
-    if(playerHP <= 0){
+    if(playerHP<=0){
 
-      gameOver = true;
+      gameOver=true;
 
       showMessage("💀 YOU LOSE!");
 
       return;
     }
-
-    updateBars();
 
   },650);
 }
@@ -647,23 +786,26 @@ function restartGame(){
 
   clearTimeout(enemyTimer);
 
-  playerHP = 100;
-  enemyHP = 100;
+  playerHP=100;
+  enemyHP=100;
 
-  playerEnergy = 0;
-  enemyEnergy = 0;
+  playerEnergy=0;
+  enemyEnergy=0;
 
-  playerX = 70;
+  playerX=70;
 
-  blocking = false;
-  gameOver = false;
+  blocking=false;
+  jumping=false;
+  comboBusy=false;
+  gameOver=false;
 
-  player.style.left =
-    playerX + "px";
+  player.style.left=
+    playerX+"px";
 
   updateBars();
 
   showMessage("🔥 FIGHT!");
+
 }
 
 updateBars();
@@ -672,3 +814,12 @@ updateBars();
 
 </body>
 </html>
+
+
+  
+
+  
+
+
+
+  
