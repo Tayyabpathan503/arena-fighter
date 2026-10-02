@@ -1,0 +1,2620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<title>Shinobi Arena V2</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+ margin:0;
+ width:100%;
+ height:100%;
+ overflow:hidden;
+ background:#050713;
+ color:white;
+ font-family:Arial,sans-serif;
+ touch-action:none;
+}
+
+canvas{
+ display:block;
+ width:100%;
+ height:100%;
+ background:#080b18;
+}
+
+#hud{
+ position:fixed;
+ top:8px;
+ left:8px;
+ right:8px;
+ display:flex;
+ justify-content:space-between;
+ pointer-events:none;
+ z-index:5;
+}
+
+.panel{
+ background:rgba(0,0,0,.68);
+ border:1px solid #ffffff25;
+ border-radius:12px;
+ padding:7px 10px;
+ backdrop-filter:blur(6px);
+ min-width:155px;
+}
+
+.bar{
+ width:170px;
+ height:13px;
+ background:#222;
+ border-radius:10px;
+ overflow:hidden;
+ margin:3px;
+}
+
+#hp{
+ height:100%;
+ background:linear-gradient(90deg,#ff253f,#ff6b45);
+ width:100%;
+}
+
+#chakra{
+ height:100%;
+ background:linear-gradient(90deg,#168cff,#7a5cff);
+ width:100%;
+}
+
+#xpbar{
+ height:100%;
+ background:linear-gradient(90deg,#ffd52e,#ff8c32);
+ width:0%;
+}
+
+#mission{
+ position:fixed;
+ left:50%;
+ top:70px;
+ transform:translateX(-50%);
+ z-index:6;
+ padding:7px 15px;
+ background:#0009;
+ border-radius:20px;
+ font-size:13px;
+ text-align:center;
+ border:1px solid #ffffff22;
+}
+
+#menu,#gameover{
+ position:fixed;
+ inset:0;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ background:radial-gradient(circle,#18265c,#050713 72%);
+ z-index:20;
+ text-align:center;
+}
+
+.box{
+ width:min(94%,560px);
+ padding:25px;
+ border-radius:22px;
+ background:rgba(8,12,30,.95);
+ border:1px solid #ffffff25;
+ box-shadow:0 20px 80px #000;
+}
+
+h1{
+ margin:0 0 5px;
+ font-size:42px;
+ background:linear-gradient(90deg,#42d9ff,#b96cff,#ff4c78);
+ color:transparent;
+ background-clip:text;
+}
+
+button{
+ border:0;
+ border-radius:13px;
+ padding:13px 18px;
+ margin:5px;
+ color:white;
+ background:#303b80;
+ font-size:16px;
+ font-weight:bold;
+ box-shadow:0 4px 0 #151b40;
+}
+
+button:active{
+ transform:translateY(3px);
+ box-shadow:none;
+}
+
+.primary{
+ background:linear-gradient(90deg,#6b35ff,#e53277);
+}
+
+.hidden{
+ display:none!important;
+}
+
+#controls{
+ position:fixed;
+ bottom:10px;
+ left:0;
+ right:0;
+ height:155px;
+ z-index:10;
+ pointer-events:none;
+}
+
+.ctrl{
+ position:absolute;
+ width:62px;
+ height:62px;
+ border-radius:50%;
+ border:1px solid #ffffff38;
+ background:#ffffff18;
+ color:white;
+ font-size:23px;
+ pointer-events:auto;
+ user-select:none;
+ -webkit-user-select:none;
+}
+
+#left{left:15px;bottom:25px}
+#right{left:87px;bottom:25px}
+#jump{right:185px;bottom:72px}
+#attack{right:102px;bottom:18px;background:#7b263b}
+#jutsu{right:22px;bottom:72px;background:#253e8a}
+#ult{right:102px;bottom:95px;background:#71358e}
+#switch{right:22px;bottom:18px}
+
+#combo{
+ position:fixed;
+ right:15px;
+ top:105px;
+ z-index:7;
+ font-size:25px;
+ font-weight:bold;
+ color:#ffe45c;
+ text-shadow:0 0 12px #ff7b00;
+ opacity:0;
+ transition:.15s;
+}
+
+#bossBar{
+ position:fixed;
+ left:50%;
+ bottom:165px;
+ transform:translateX(-50%);
+ width:min(75%,500px);
+ height:14px;
+ background:#18070b;
+ border:1px solid #ff315a88;
+ border-radius:10px;
+ overflow:hidden;
+ display:none;
+ z-index:8;
+}
+
+#bossHP{
+ height:100%;
+ width:100%;
+ background:linear-gradient(90deg,#ff315a,#ff8b2e);
+}
+
+#toast{
+ position:fixed;
+ left:50%;
+ top:135px;
+ transform:translateX(-50%);
+ z-index:15;
+ background:#000b;
+ padding:9px 18px;
+ border-radius:20px;
+ opacity:0;
+ pointer-events:none;
+ transition:.25s;
+}
+
+.small{
+ font-size:12px;
+ opacity:.7;
+}
+
+.stat{
+ display:inline-block;
+ margin:2px 4px;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+
+ <div class="panel">
+   <b id="heroName">KAI</b>
+
+   <div class="bar">
+     <div id="hp"></div>
+   </div>
+
+   <div class="bar">
+     <div id="chakra"></div>
+   </div>
+
+   <div class="bar" style="height:6px">
+     <div id="xpbar"></div>
+   </div>
+
+   <span>
+     Lv.<b id="level">1</b>
+     • XP <b id="xp">0</b>
+     • 💰 <b id="coins">100</b>
+   </span>
+ </div>
+
+ <div class="panel">
+   <b id="stageText">MISSION 1</b><br>
+   Enemy: <span id="enemyCount">0</span>
+   <br>
+   <span class="small">Z Attack • X Jutsu • C Ultimate</span>
+ </div>
+
+</div>
+
+<div id="mission">Defeat all enemies</div>
+
+<div id="combo">COMBO x1</div>
+
+<div id="bossBar">
+ <div id="bossHP"></div>
+</div>
+
+<div id="toast">LEVEL UP!</div>
+
+<div id="menu">
+
+ <div class="box">
+
+   <h1>SHINOBI ARENA</h1>
+
+   <p>
+     ⚔️ Anime Ninja Action<br>
+     🌑 Story • Boss • Survival
+   </p>
+
+   <button class="primary" onclick="startGame()">
+     START GAME
+   </button>
+
+   <button onclick="survival()">
+     SURVIVAL MODE
+   </button>
+
+   <button onclick="upgrade()">
+     UPGRADE
+   </button>
+
+   <button onclick="switchHero()">
+     CHANGE NINJA
+   </button>
+
+   <p id="menuInfo">
+     Master chakra. Defeat enemies. Become stronger.
+   </p>
+
+   <p class="small">
+     Current ninja: <b id="menuHero">KAI</b>
+   </p>
+
+ </div>
+
+</div>
+
+<div id="gameover" class="hidden">
+
+ <div class="box">
+
+   <h1 id="resultTitle">
+     MISSION COMPLETE
+   </h1>
+
+   <p id="resultText"></p>
+
+   <button class="primary" onclick="nextMission()">
+     NEXT MISSION
+   </button>
+
+   <button onclick="backMenu()">
+     MENU
+   </button>
+
+ </div>
+
+</div>
+
+<div id="controls">
+
+ <button class="ctrl" id="left">◀</button>
+ <button class="ctrl" id="right">▶</button>
+ <button class="ctrl" id="jump">⬆</button>
+ <button class="ctrl" id="attack">👊</button>
+ <button class="ctrl" id="jutsu">⚡</button>
+ <button class="ctrl" id="ult">🔥</button>
+ <button class="ctrl" id="switch">⇄</button>
+
+</div>
+
+<script>
+
+/* =========================================================
+   SHINOBI ARENA V2
+   SINGLE FILE
+   ========================================================= */
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+let W=innerWidth;
+let H=innerHeight;
+
+function resize(){
+
+ W=innerWidth;
+ H=innerHeight;
+
+ canvas.width=W*devicePixelRatio;
+ canvas.height=H*devicePixelRatio;
+
+ canvas.style.width=W+"px";
+ canvas.style.height=H+"px";
+
+ ctx.setTransform(
+   devicePixelRatio,
+   0,
+   0,
+   devicePixelRatio,
+   0,
+   0
+ );
+}
+
+addEventListener("resize",resize);
+resize();
+
+
+/* =========================
+   SAVE SYSTEM
+   ========================= */
+
+let save;
+
+try{
+ save=JSON.parse(
+   localStorage.getItem("shinobiArenaSaveV2")
+ );
+}catch(e){
+ save=null;
+}
+
+if(!save){
+
+ save={
+   level:1,
+   xp:0,
+   coins:100,
+   damage:1,
+   health:1,
+   chakra:1,
+   missions:0
+ };
+
+}
+
+function saveGame(){
+
+ localStorage.setItem(
+   "shinobiArenaSaveV2",
+   JSON.stringify(save)
+ );
+
+ updateHUD();
+}
+
+
+/* =========================
+   GAME STATE
+   ========================= */
+
+let running=false;
+let mode="story";
+
+let mission=1;
+let wave=1;
+
+let enemies=[];
+let particles=[];
+let projectiles=[];
+let effects=[];
+
+let cameraX=0;
+let world=5000;
+
+let transitionLock=false;
+
+let keys={};
+
+let last=0;
+
+
+/* =========================
+   HEROES
+   ========================= */
+
+const heroes=[
+
+ {
+   name:"KAI",
+   color:"#38cfff",
+   damage:22,
+   speed:5.5,
+   jutsu:"Wind Slash"
+ },
+
+ {
+   name:"RAI",
+   color:"#ff4b63",
+   damage:28,
+   speed:4.8,
+   jutsu:"Flame Burst"
+ },
+
+ {
+   name:"YUMI",
+   color:"#b66cff",
+   damage:20,
+   speed:6.2,
+   jutsu:"Shadow Wave"
+ }
+
+];
+
+let heroIndex=0;
+
+let hero={
+
+ x:450,
+ y:0,
+
+ vx:0,
+ vy:0,
+
+ w:45,
+ h:75,
+
+ hp:100,
+ maxHp:100,
+
+ chakra:100,
+ maxChakra:100,
+
+ facing:1,
+
+ attackTimer:0,
+ attackCooldown:0,
+
+ inv:0,
+
+ combo:0,
+ comboTimer:0,
+
+ dashTimer:0
+
+};
+
+function heroData(){
+ return heroes[heroIndex];
+}
+
+
+/* =========================
+   UI
+   ========================= */
+
+function updateHUD(){
+
+ document.getElementById("level").textContent=
+   save.level;
+
+ document.getElementById("xp").textContent=
+   save.xp;
+
+ document.getElementById("coins").textContent=
+   save.coins;
+
+ document.getElementById("heroName").textContent=
+   heroData().name;
+
+ document.getElementById("menuHero").textContent=
+   heroData().name;
+
+ let hpPercent=
+   Math.max(0,hero.hp/hero.maxHp*100);
+
+ let chakraPercent=
+   Math.max(0,hero.chakra/hero.maxChakra*100);
+
+ document.getElementById("hp").style.width=
+   hpPercent+"%";
+
+ document.getElementById("chakra").style.width=
+   chakraPercent+"%";
+
+ let needed=save.level*150;
+
+ document.getElementById("xpbar").style.width=
+   Math.min(100,save.xp/needed*100)+"%";
+
+ document.getElementById("stageText").textContent=
+   mode==="survival"
+   ?"SURVIVAL WAVE "+wave
+   :"MISSION "+mission;
+
+ document.getElementById("enemyCount").textContent=
+   enemies.length;
+
+ let boss=enemies.find(e=>e.type==="boss");
+
+ if(boss){
+
+   document.getElementById("bossBar").style.display="block";
+
+   document.getElementById("bossHP").style.width=
+     Math.max(0,boss.hp/boss.maxHp*100)+"%";
+
+ }else{
+
+   document.getElementById("bossBar").style.display="none";
+
+ }
+
+}
+
+
+/* =========================
+   START
+   ========================= */
+
+function startGame(){
+
+ document.getElementById("menu")
+ .classList.add("hidden");
+
+ document.getElementById("gameover")
+ .classList.add("hidden");
+
+ mode="story";
+ mission=1;
+
+ initMission();
+
+ running=true;
+
+ showToast("MISSION START!");
+
+}
+
+function survival(){
+
+ document.getElementById("menu")
+ .classList.add("hidden");
+
+ document.getElementById("gameover")
+ .classList.add("hidden");
+
+ mode="survival";
+ wave=1;
+
+ initWave();
+
+ running=true;
+
+ showToast("SURVIVAL MODE!");
+
+}
+
+
+/* =========================
+   MISSION
+   ========================= */
+
+function initMission(){
+
+ world=4200+mission*650;
+
+ hero.x=350;
+ hero.y=0;
+
+ hero.vx=0;
+ hero.vy=0;
+
+ hero.hp=hero.maxHp;
+ hero.chakra=hero.maxChakra;
+
+ hero.combo=0;
+
+ enemies=[];
+ particles=[];
+ projectiles=[];
+ effects=[];
+
+ transitionLock=false;
+
+ let amount=
+   Math.min(12,4+mission*2);
+
+ for(let i=0;i<amount;i++){
+
+   spawnEnemy(
+     850+i*430,
+     "normal"
+   );
+
+ }
+
+ if(mission%3===0){
+
+   spawnEnemy(
+     world-500,
+     "boss"
+   );
+
+ }
+
+ updateHUD();
+
+}
+
+
+/* =========================
+   SURVIVAL
+   ========================= */
+
+function initWave(){
+
+ world=4500+wave*100;
+
+ hero.x=400;
+ hero.y=0;
+
+ hero.vx=0;
+ hero.vy=0;
+
+ hero.hp=hero.maxHp;
+ hero.chakra=hero.maxChakra;
+
+ enemies=[];
+ particles=[];
+ projectiles=[];
+ effects=[];
+
+ transitionLock=false;
+
+ let amount=
+   Math.min(15,4+wave*2);
+
+ for(let i=0;i<amount;i++){
+
+   spawnEnemy(
+     900+i*390,
+     wave%5===0
+     ?"boss"
+     :"normal"
+   );
+
+ }
+
+ updateHUD();
+
+}
+
+
+/* =========================
+   ENEMY
+   ========================= */
+
+function spawnEnemy(x,type){
+
+ let boss=type==="boss";
+
+ let hp=
+   boss
+   ?450+mission*100+wave*30
+   :70+mission*18+wave*5;
+
+ enemies.push({
+
+   x:x,
+   y:0,
+
+   w:boss?75:48,
+   h:boss?105:72,
+
+   hp:hp,
+   maxHp:hp,
+
+   speed:boss?1.05:1.5+Math.random()*.5,
+
+   damage:boss?18+mission*2:8+mission,
+
+   type:type,
+
+   attack:0,
+   hit:0,
+
+   dead:false,
+
+   color:
+     boss
+     ?"#ff315a"
+     :"#8c94ad"
+
+ });
+
+}
+
+
+/* =========================
+   GROUND
+   ========================= */
+
+function ground(){
+ return H-95;
+}
+
+
+/* =========================
+   PHYSICS
+   ========================= */
+
+function physics(){
+
+ if(!running)return;
+
+ hero.vy+=.65;
+
+ hero.x+=hero.vx;
+ hero.y+=hero.vy;
+
+ let g=ground()-hero.h;
+
+ if(hero.y>g){
+
+   hero.y=g;
+   hero.vy=0;
+
+ }
+
+ hero.vx*=.82;
+
+ hero.x=
+   Math.max(
+     50,
+     Math.min(world-100,hero.x)
+   );
+
+ if(hero.attackCooldown>0)
+   hero.attackCooldown--;
+
+ if(hero.attackTimer>0)
+   hero.attackTimer--;
+
+ if(hero.inv>0)
+   hero.inv--;
+
+ if(hero.comboTimer>0)
+   hero.comboTimer--;
+
+ else
+   hero.combo=0;
+
+
+ /* Chakra regeneration */
+
+ if(hero.chakra<hero.maxChakra){
+
+   hero.chakra+=.10;
+
+   if(hero.chakra>hero.maxChakra)
+     hero.chakra=hero.maxChakra;
+
+ }
+
+
+ /* Enemies */
+
+ for(const e of enemies){
+
+   if(e.dead)continue;
+
+   let dx=hero.x-e.x;
+   let dist=Math.abs(dx);
+
+   /*
+      Enemy AI
+   */
+
+   if(dist>75){
+
+     e.x+=
+       Math.sign(dx)*e.speed;
+
+   }else{
+
+     if(e.attack<=0){
+
+       e.attack=
+         e.type==="boss"
+         ?48
+         :62;
+
+       damageHero(e.damage);
+
+     }
+
+   }
+
+   if(e.attack>0)
+     e.attack--;
+
+   if(e.hit>0)
+     e.hit--;
+
+   if(e.hp<=0){
+
+     e.dead=true;
+
+     defeatEnemy(e);
+
+   }
+
+ }
+
+
+ enemies=
+   enemies.filter(e=>!e.dead);
+
+
+ if(enemies.length===0 &&
+    !transitionLock){
+
+   transitionLock=true;
+
+   setTimeout(()=>{
+
+     if(!running)return;
+
+     if(mode==="story"){
+
+       missionComplete();
+
+     }else{
+
+       wave++;
+
+       initWave();
+
+     }
+
+   },500);
+
+ }
+
+
+ if(hero.hp<=0)
+   loseGame();
+
+
+ cameraX=
+   hero.x-W*.42;
+
+ cameraX=
+   Math.max(
+     0,
+     Math.min(world-W,cameraX)
+   );
+
+}
+
+
+/* =========================
+   ENEMY DEFEATED
+   ========================= */
+
+function defeatEnemy(e){
+
+ let xp=
+   e.type==="boss"
+   ?150
+   :25;
+
+ let coins=
+   e.type==="boss"
+   ?100
+   :10;
+
+ save.xp+=xp;
+ save.coins+=coins;
+
+ burst(
+   e.x,
+   e.y+30,
+   e.type==="boss"
+   ?"#ff315a"
+   :"#54df67",
+   e.type==="boss"
+   ?35
+   :15
+ );
+
+ if(e.type==="boss"){
+
+   showToast("BOSS DEFEATED! +100 💰");
+
+   shake(15);
+
+ }else{
+
+   showToast("+"+xp+" XP  +" +coins+" 💰");
+
+ }
+
+ checkLevelUp();
+
+ saveGame();
+
+}
+
+
+/* =========================
+   LEVEL UP
+   ========================= */
+
+function checkLevelUp(){
+
+ let needed=
+   save.level*150;
+
+ while(save.xp>=needed){
+
+   save.xp-=needed;
+
+   save.level++;
+
+   save.damage+=.12;
+   save.health+=.10;
+   save.chakra+=.10;
+
+   hero.maxHp+=10;
+   hero.maxChakra+=10;
+
+   hero.hp=hero.maxHp;
+   hero.chakra=hero.maxChakra;
+
+   needed=save.level*150;
+
+   showToast("⭐ LEVEL "+save.level+"!");
+
+   burst(
+     hero.x,
+     hero.y+30,
+     "#ffd84a",
+     40
+   );
+
+ }
+
+}
+
+
+/* =========================
+   PLAYER DAMAGE
+   ========================= */
+
+function damageHero(dmg){
+
+ if(hero.inv>0)return;
+
+ hero.hp-=dmg;
+
+ hero.inv=35;
+
+ hero.combo=0;
+
+ burst(
+   hero.x+20,
+   hero.y+30,
+   "#ff344f",
+   12
+ );
+
+ shake(7);
+
+ updateHUD();
+
+}
+
+
+/* =========================
+   NORMAL ATTACK
+   ========================= */
+
+function attack(){
+
+ if(!running)return;
+
+ if(hero.attackCooldown>0)return;
+
+ hero.attackCooldown=16;
+
+ hero.attackTimer=12;
+
+ hero.combo++;
+
+ if(hero.combo>5)
+   hero.combo=1;
+
+ hero.comboTimer=45;
+
+ let comboMultiplier=
+   1+(hero.combo-1)*.18;
+
+ let damage=
+   heroData().damage*
+   save.damage*
+   comboMultiplier;
+
+ let hit=false;
+
+ for(const e of enemies){
+
+   if(e.dead)continue;
+
+   let dx=e.x-hero.x;
+
+   if(
+     Math.abs(dx)<105 &&
+     Math.sign(dx)===hero.facing
+   ){
+
+     e.hp-=damage;
+
+     e.hit=8;
+
+     hit=true;
+
+     burst(
+       e.x,
+       e.y+30,
+       hero.combo>=4
+       ?"#ffd84a"
+       :"#fff",
+       10+hero.combo*2
+     );
+
+     if(hero.combo>=5)
+       shake(10);
+     else
+       shake(3);
+
+   }
+
+ }
+
+ if(hit){
+
+   let comboEl=
+     document.getElementById("combo");
+
+   comboEl.textContent=
+     "COMBO x"+hero.combo;
+
+   comboEl.style.opacity=1;
+
+   clearTimeout(window.comboHide);
+
+   window.comboHide=
+     setTimeout(()=>{
+       comboEl.style.opacity=0;
+     },500);
+
+ }
+
+ updateHUD();
+
+}
+
+
+/* =========================
+   JUTSU
+   ========================= */
+
+function jutsu(){
+
+ if(!running)return;
+
+ if(hero.chakra<25){
+
+   showToast("NOT ENOUGH CHAKRA!");
+
+   return;
+
+ }
+
+ hero.chakra-=25;
+
+ let hx=
+   hero.x+hero.facing*40;
+
+ projectiles.push({
+
+   x:hx,
+   y:hero.y+25,
+
+   vx:hero.facing*11,
+
+   life:70,
+
+   damage:
+     55*
+     save.chakra*
+     (hero.combo>=3?1.25:1)
+
+ });
+
+ effects.push({
+
+   x:hx,
+   y:hero.y+25,
+
+   life:20,
+
+   type:"jutsu"
+
+ });
+
+ burst(
+   hx,
+   hero.y+25,
+   heroData().color,
+   10
+ );
+
+ updateHUD();
+
+}
+
+
+/* =========================
+   ULTIMATE
+   ========================= */
+
+function ultimate(){
+
+ if(!running)return;
+
+ if(hero.chakra<70){
+
+   showToast("ULTIMATE NEEDS 70 CHAKRA!");
+
+   return;
+
+ }
+
+ hero.chakra-=70;
+
+ let damage=
+   180*
+   save.chakra;
+
+ for(const e of enemies){
+
+   if(
+     !e.dead &&
+     Math.abs(e.x-hero.x)<430
+   ){
+
+     e.hp-=damage;
+
+     e.hit=12;
+
+     burst(
+       e.x,
+       e.y+30,
+       "#c45cff",
+       30
+     );
+
+   }
+
+ }
+
+ effects.push({
+
+   x:hero.x,
+   y:hero.y+25,
+
+   life:45,
+
+   type:"ultimate"
+
+ });
+
+ shake(15);
+
+ showToast("🔥 ULTIMATE!");
+
+ updateHUD();
+
+}
+
+
+/* =========================
+   DASH
+   ========================= */
+
+function dash(){
+
+ if(!running)return;
+
+ if(hero.chakra<10)return;
+
+ hero.chakra-=10;
+
+ hero.vx=
+   hero.facing*18;
+
+ hero.dashTimer=8;
+
+ burst(
+   hero.x,
+   hero.y+60,
+   "#42d9ff",
+   8
+ );
+
+}
+
+
+/* =========================
+   JUMP
+   ========================= */
+
+function jump(){
+
+ if(!running)return;
+
+ if(
+   Math.abs(
+     hero.y-(ground()-hero.h)
+   )<6
+ ){
+
+   hero.vy=-13;
+
+   burst(
+     hero.x+20,
+     ground(),
+     "#ffffff",
+     6
+   );
+
+ }
+
+}
+
+
+/* =========================
+   SWITCH CHARACTER
+   ========================= */
+
+function switchHero(){
+
+ heroIndex=
+   (heroIndex+1)%heroes.length;
+
+ hero.hp=hero.maxHp;
+ hero.chakra=hero.maxChakra;
+ hero.combo=0;
+
+ updateHUD();
+
+ document.getElementById("menuInfo").textContent=
+   "Selected "+heroData().name+
+   " • "+heroData().jutsu;
+
+}
+
+
+/* =========================
+   PROJECTILES
+   ========================= */
+
+function updateProjectiles(){
+
+ for(const p of projectiles){
+
+   p.x+=p.vx;
+
+   p.life--;
+
+   for(const e of enemies){
+
+     if(
+       !e.dead &&
+       Math.abs(p.x-e.x)<55
+     ){
+
+       e.hp-=p.damage;
+
+       e.hit=8;
+
+       p.life=0;
+
+       burst(
+         e.x,
+         e.y+25,
+         "#42d9ff",
+         15
+       );
+
+       break;
+
+     }
+
+   }
+
+ }
+
+ projectiles=
+   projectiles.filter(
+     p=>p.life>0
+   );
+
+}
+
+
+/* =========================
+   PARTICLES
+   ========================= */
+
+function burst(x,y,color,n){
+
+ for(let i=0;i<n;i++){
+
+   particles.push({
+
+     x:x,
+     y:y,
+
+     vx:
+       (Math.random()-.5)*8,
+
+     vy:
+       (Math.random()-.5)*8,
+
+     life:
+       20+
+       Math.random()*30,
+
+     color:color
+
+   });
+
+ }
+
+}
+
+function updateParticles(){
+
+ for(const p of particles){
+
+   p.x+=p.vx;
+   p.y+=p.vy;
+
+   p.vy+=.15;
+
+   p.life--;
+
+ }
+
+ particles=
+   particles.filter(
+     p=>p.life>0
+   );
+
+ for(const e of effects)
+   e.life--;
+
+ effects=
+   effects.filter(
+     e=>e.life>0
+   );
+
+}
+
+
+/* =========================
+   CAMERA SHAKE
+   ========================= */
+
+let shakePower=0;
+
+function shake(p=5){
+
+ shakePower=
+   Math.max(shakePower,p);
+
+}
+
+
+/* =========================
+   BACKGROUND
+   ========================= */
+
+function drawBackground(){
+
+ ctx.fillStyle="#090d22";
+ ctx.fillRect(0,0,W,H);
+
+ let sky=
+   ctx.createLinearGradient(
+     0,0,0,H
+   );
+
+ sky.addColorStop(
+   0,
+   "#111b45"
+ );
+
+ sky.addColorStop(
+   1,
+   "#070914"
+ );
+
+ ctx.fillStyle=sky;
+ ctx.fillRect(0,0,W,H);
+
+
+ /* Moon */
+
+ ctx.fillStyle="#e8ecff";
+
+ ctx.beginPath();
+
+ ctx.arc(
+   W-100,
+   90,
+   42,
+   0,
+   Math.PI*2
+ );
+
+ ctx.fill();
+
+
+ /* Moon glow */
+
+ ctx.fillStyle="#ffffff08";
+
+ ctx.beginPath();
+
+ ctx.arc(
+   W-100,
+   90,
+   75,
+   0,
+   Math.PI*2
+ );
+
+ ctx.fill();
+
+
+ /* Mountains */
+
+ ctx.fillStyle="#151b38";
+
+ for(
+   let i=-2;
+   i<15;
+   i++
+ ){
+
+   let x=
+     i*400-
+     (cameraX*.2%400);
+
+   ctx.beginPath();
+
+   ctx.moveTo(
+     x,
+     ground()
+   );
+
+   ctx.lineTo(
+     x+200,
+     ground()-230
+   );
+
+   ctx.lineTo(
+     x+430,
+     ground()
+   );
+
+   ctx.fill();
+
+ }
+
+
+ /* Trees */
+
+ for(
+   let i=-2;
+   i<20;
+   i++
+ ){
+
+   let x=
+     i*260-
+     (cameraX*.45%260);
+
+   drawTree(
+     x,
+     ground()-10
+   );
+
+ }
+
+}
+
+
+/* =========================
+   TREE
+   ========================= */
+
+function drawTree(x,y){
+
+ ctx.fillStyle="#241b20";
+
+ ctx.fillRect(
+   x-8,
+   y-100,
+   16,
+   100
+ );
+
+ ctx.fillStyle="#122f36";
+
+ for(let i=0;i<4;i++){
+
+   ctx.beginPath();
+
+   ctx.arc(
+     x+(i%2?25:-20),
+     y-115-i*22,
+     35,
+     0,
+     Math.PI*2
+   );
+
+   ctx.fill();
+
+ }
+
+}
+
+
+/* =========================
+   GROUND
+   ========================= */
+
+function drawGround(){
+
+ let gy=ground();
+
+ ctx.fillStyle="#151823";
+
+ ctx.fillRect(
+   0,
+   gy,
+   W,
+   H-gy
+ );
+
+ ctx.strokeStyle="#31374d";
+
+ ctx.lineWidth=2;
+
+ for(
+   let x=-cameraX%100;
+   x<W;
+   x+=100
+ ){
+
+   ctx.beginPath();
+
+   ctx.moveTo(
+     x,
+     gy
+   );
+
+   ctx.lineTo(
+     x+40,
+     gy+50
+   );
+
+   ctx.stroke();
+
+ }
+
+}
+
+
+/* =========================
+   HERO
+   ========================= */
+
+function drawHero(){
+
+ let x=
+   hero.x-cameraX;
+
+ let y=
+   hero.y;
+
+ ctx.save();
+
+ ctx.translate(x,y);
+
+ if(hero.facing<0)
+   ctx.scale(-1,1);
+
+ if(hero.inv%6<3)
+   ctx.globalAlpha=.55;
+
+
+ /* Shadow */
+
+ ctx.fillStyle="#0008";
+
+ ctx.beginPath();
+
+ ctx.ellipse(
+   22,
+   hero.h+3,
+   30,
+   8,
+   0,
+   0,
+   Math.PI*2
+ );
+
+ ctx.fill();
+
+
+ /* Legs */
+
+ ctx.fillStyle="#222a4d";
+
+ ctx.fillRect(
+   7,48,12,27
+ );
+
+ ctx.fillRect(
+   27,48,12,27
+ );
+
+
+ /* Body */
+
+ ctx.fillStyle=
+   heroData().color;
+
+ ctx.fillRect(
+   5,20,38,36
+ );
+
+
+ /* Scarf */
+
+ ctx.fillStyle="#ff385d";
+
+ ctx.fillRect(
+   0,25,12,7
+ );
+
+
+ /* Head */
+
+ ctx.fillStyle="#e7b08d";
+
+ ctx.beginPath();
+
+ ctx.arc(
+   24,13,17,
+   0,
+   Math.PI*2
+ );
+
+ ctx.fill();
+
+
+ /* Hair */
+
+ ctx.fillStyle="#101321";
+
+ ctx.beginPath();
+
+ ctx.moveTo(8,13);
+ ctx.lineTo(13,-5);
+ ctx.lineTo(20,5);
+ ctx.lineTo(27,-7);
+ ctx.lineTo(32,5);
+ ctx.lineTo(43,-1);
+ ctx.lineTo(39,16);
+
+ ctx.fill();
+
+
+ /* Headband */
+
+ ctx.fillStyle="#bfc7d9";
+
+ ctx.fillRect(
+   9,8,31,6
+ );
+
+ ctx.fillStyle="#151a27";
+
+ ctx.fillRect(
+   21,9,7,4
+ );
+
+
+ /* Eyes */
+
+ ctx.fillStyle="#111";
+
+ ctx.fillRect(
+   16,15,5,3
+ );
+
+ ctx.fillRect(
+   29,15,5,3
+ );
+
+
+ /* Attack slash */
+
+ if(hero.attackTimer>0){
+
+   ctx.strokeStyle="#fff";
+
+   ctx.lineWidth=5;
+
+   ctx.beginPath();
+
+   ctx.moveTo(
+     35,28
+   );
+
+   ctx.lineTo(
+     82,8
+   );
+
+   ctx.stroke();
+
+ }
+
+ /* Chakra aura */
+
+ if(hero.chakra>70){
+
+   ctx.strokeStyle=
+     heroData().color+"44";
+
+   ctx.lineWidth=3;
+
+   ctx.beginPath();
+
+   ctx.arc(
+     24,
+     35,
+     42,
+     0,
+     Math.PI*2
+   );
+
+   ctx.stroke();
+
+ }
+
+ ctx.restore();
+
+}
+
+
+/* =========================
+   ENEMY
+   ========================= */
+
+function drawEnemy(e){
+
+ let x=
+   e.x-cameraX;
+
+ let y=e.y;
+
+ ctx.save();
+
+ ctx.translate(
+   x,
+   y
+ );
+
+ if(hero.x<e.x)
+   ctx.scale(-1,1);
+
+
+ /* Shadow */
+
+ ctx.fillStyle="#0008";
+
+ ctx.beginPath();
+
+ ctx.ellipse(
+   e.w/2,
+   e.h+4,
+   e.w*.55,
+   8,
+   0,
+   0,
+   Math.PI*2
+ );
+
+ ctx.fill();
+
+
+ /* Body */
+
+ ctx.fillStyle=e.color;
+
+ ctx.fillRect(
+   5,
+   20,
+   e.w-10,
+   e.h-25
+ );
+
+
+ /* Head */
+
+ ctx.fillStyle="#1c1c2b";
+
+ ctx.beginPath();
+
+ ctx.arc(
+   e.w/2,
+   14,
+   e.w*.28,
+   0,
+   Math.PI*2
+ );
+
+ ctx.fill();
+
+
+ /* Face */
+
+ ctx.fillStyle="#f1c0a0";
+
+ ctx.beginPath();
+
+ ctx.arc(
+   e.w/2,
+   16,
+   e.w*.23,
+   0,
+   Math.PI*2
+ );
+
+ ctx.fill();
+
+
+ /* Eyes */
+
+ ctx.fillStyle="#111";
+
+ ctx.fillRect(
+   e.w*.3,
+   17,
+   5,
+   3
+ );
+
+ ctx.fillRect(
+   e.w*.58,
+   17,
+   5,
+   3
+ );
+
+
+ /* Hit flash */
+
+ if(e.hit>0){
+
+   ctx.fillStyle="#fff8";
+
+   ctx.fillRect(
+     0,
+     0,
+     e.w,
+     e.h
+   );
+
+ }
+
+
+ ctx.restore();
+
+
+ /* HP */
+
+ ctx.fillStyle="#000";
+
+ ctx.fillRect(
+   x,
+   y-12,
+   e.w,
+   5
+ );
+
+ ctx.fillStyle=
+   e.type==="boss"
+   ?"#ff315a"
+   :"#54df67";
+
+ ctx.fillRect(
+   x,
+   y-12,
+   e.w*
+   Math.max(
+     0,
+     e.hp/e.maxHp
+   ),
+   5
+ );
+
+}
+
+
+/* =========================
+   PROJECTILES
+   ========================= */
+
+function drawProjectiles(){
+
+ for(const p of projectiles){
+
+   let x=
+     p.x-cameraX;
+
+   ctx.fillStyle=
+     heroData().color;
+
+   ctx.shadowBlur=20;
+
+   ctx.shadowColor=
+     heroData().color;
+
+   ctx.beginPath();
+
+   ctx.arc(
+     x,
+     p.y,
+     12,
+     0,
+     Math.PI*2
+   );
+
+   ctx.fill();
+
+   ctx.shadowBlur=0;
+
+ }
+
+}
+
+
+/* =========================
+   EFFECTS
+   ========================= */
+
+function drawEffects(){
+
+ for(const e of effects){
+
+   let x=
+     e.x-cameraX;
+
+   if(e.type==="jutsu"){
+
+     ctx.strokeStyle=
+       "#45ddff";
+
+     ctx.lineWidth=5;
+
+     ctx.beginPath();
+
+     ctx.arc(
+       x,
+       e.y,
+       35+e.life,
+       0,
+       Math.PI*2
+     );
+
+     ctx.stroke();
+
+   }
+
+
+   if(e.type==="ultimate"){
+
+     ctx.strokeStyle=
+       "#c65cff";
+
+     ctx.lineWidth=8;
+
+     ctx.beginPath();
+
+     ctx.arc(
+       x,
+       e.y,
+       120-e.life,
+       0,
+       Math.PI*2
+     );
+
+     ctx.stroke();
+
+   }
+
+ }
+
+}
+
+
+/* =========================
+   PARTICLES
+   ========================= */
+
+function drawParticles(){
+
+ for(const p of particles){
+
+   ctx.globalAlpha=
+     Math.max(
+       0,
+       p.life/40
+     );
+
+   ctx.fillStyle=
+     p.color;
+
+   ctx.fillRect(
+     p.x-cameraX,
+     p.y,
+     5,
+     5
+   );
+
+ }
+
+ ctx.globalAlpha=1;
+
+}
+
+
+/* =========================
+   RENDER
+   ========================= */
+
+function render(){
+
+ ctx.save();
+
+ if(shakePower>0){
+
+   ctx.translate(
+     (Math.random()-.5)*
+     shakePower,
+
+     (Math.random()-.5)*
+     shakePower
+   );
+
+   shakePower*=.8;
+
+   if(shakePower<.2)
+     shakePower=0;
+
+ }
+
+ drawBackground();
+
+ drawGround();
+
+ for(const e of enemies)
+   drawEnemy(e);
+
+ drawProjectiles();
+
+ drawHero();
+
+ drawEffects();
+
+ drawParticles();
+
+ ctx.restore();
+
+}
+
+
+/* =========================
+   LOOP
+   ========================= */
+
+function loop(t){
+
+ let dt=t-last;
+
+ last=t;
+
+ physics();
+
+ updateProjectiles();
+
+ updateParticles();
+
+ render();
+
+ requestAnimationFrame(loop);
+
+}
+
+requestAnimationFrame(loop);
+
+
+/* =========================
+   MISSION COMPLETE
+   ========================= */
+
+function missionComplete(){
+
+ if(!running)return;
+
+ running=false;
+
+ let xp=
+   50*mission;
+
+ let coins=
+   30*mission;
+
+ save.xp+=xp;
+ save.coins+=coins;
+
+ save.missions++;
+
+ checkLevelUp();
+
+ saveGame();
+
+ document.getElementById(
+   "resultTitle"
+ ).textContent=
+   "MISSION COMPLETE!";
+
+ document.getElementById(
+   "resultText"
+ ).textContent=
+   "Mission "+mission+
+   " cleared!  +"+
+   xp+
+   " XP  +"+
+   coins+
+   " coins";
+
+ document.getElementById(
+   "gameover"
+ ).classList.remove("hidden");
+
+}
+
+
+/* =========================
+   NEXT MISSION
+   ========================= */
+
+function nextMission(){
+
+ document.getElementById(
+   "gameover"
+ ).classList.add("hidden");
+
+ mission++;
+
+ running=true;
+
+ initMission();
+
+}
+
+
+/* =========================
+   LOSE
+   ========================= */
+
+function loseGame(){
+
+ if(!running)return;
+
+ running=false;
+
+ document.getElementById(
+   "resultTitle"
+ ).textContent=
+   "DEFEATED";
+
+ document.getElementById(
+   "resultText"
+ ).textContent=
+   "The mission failed. Train harder and try again.";
+
+ document.getElementById(
+   "gameover"
+ ).classList.remove("hidden");
+
+}
+
+
+/* =========================
+   MENU
+   ========================= */
+
+function backMenu(){
+
+ running=false;
+
+ document.getElementById(
+   "gameover"
+ ).classList.add("hidden");
+
+ document.getElementById(
+   "menu"
+ ).classList.remove("hidden");
+
+}
+
+
+/* =========================
+   UPGRADES
+   ========================= */
+
+function upgrade(){
+
+ if(save.coins<50){
+
+   document.getElementById(
+     "menuInfo"
+   ).textContent=
+     "You need 50 coins.";
+
+   return;
+
+ }
+
+ save.coins-=50;
+
+ save.damage+=.25;
+ save.health+=.15;
+ save.chakra+=.15;
+
+ hero.maxHp=
+   100+save.health*10;
+
+ hero.maxChakra=
+   100+save.chakra*10;
+
+ hero.hp=hero.maxHp;
+ hero.chakra=hero.maxChakra;
+
+ saveGame();
+
+ document.getElementById(
+   "menuInfo"
+ ).textContent=
+   "⚡ Upgrade complete! Damage, Health & Chakra increased.";
+
+ showToast("UPGRADE COMPLETE!");
+
+}
+
+
+/* =========================
+   TOAST
+   ========================= */
+
+let toastTimer;
+
+function showToast(message){
+
+ let el=
+   document.getElementById("toast");
+
+ el.textContent=message;
+
+ el.style.opacity=1;
+
+ clearTimeout(toastTimer);
+
+ toastTimer=
+   setTimeout(()=>{
+     el.style.opacity=0;
+   },900);
+
+}
+
+
+/* =========================
+   KEYBOARD
+   ========================= */
+
+addEventListener(
+ "keydown",
+ e=>{
+
+   keys[
+     e.key.toLowerCase()
+   ]=true;
+
+   if(e.key==="ArrowLeft")
+     hero.vx=-heroData().speed;
+
+   if(e.key==="ArrowRight")
+     hero.vx=heroData().speed;
+
+   if(
+     e.key===" " ||
+     e.key==="ArrowUp"
+   )
+     jump();
+
+   if(e.key.toLowerCase()==="z")
+     attack();
+
+   if(e.key.toLowerCase()==="x")
+     jutsu();
+
+   if(e.key.toLowerCase()==="c")
+     ultimate();
+
+   if(e.key.toLowerCase()==="v")
+     switchHero();
+
+   if(e.key.toLowerCase()==="d")
+     dash();
+
+ },
+ {passive:false}
+);
+
+
+addEventListener(
+ "keyup",
+ e=>{
+
+   keys[
+     e.key.toLowerCase()
+   ]=false;
+
+ }
+);
+
+
+/* =========================
+   TOUCH BUTTONS
+   ========================= */
+
+function holdButton(
+ id,
+ down,
+ up
+){
+
+ const el=
+   document.getElementById(id);
+
+ const start=e=>{
+
+   e.preventDefault();
+
+   down();
+
+ };
+
+ const end=e=>{
+
+   e.preventDefault();
+
+   if(up)up();
+
+ };
+
+ el.addEventListener(
+   "touchstart",
+   start,
+   {passive:false}
+ );
+
+ el.addEventListener(
+   "touchend",
+   end,
+   {passive:false}
+ );
+
+ el.addEventListener(
+   "mousedown",
+   down
+ );
+
+ el.addEventListener(
+   "mouseup",
+   up||(()=>{})
+ );
+
+}
+
+
+holdButton(
+ "left",
+
+ ()=>{
+
+   hero.vx=
+     -heroData().speed;
+
+   hero.facing=-1;
+
+ },
+
+ ()=>{
+
+   if(hero.vx<0)
+     hero.vx=0;
+
+ }
+);
+
+
+holdButton(
+ "right",
+
+ ()=>{
+
+   hero.vx=
+     heroData().speed;
+
+   hero.facing=1;
+
+ },
+
+ ()=>{
+
+   if(hero.vx>0)
+     hero.vx=0;
+
+ }
+);
+
+
+holdButton(
+ "jump",
+ jump
+);
+
+holdButton(
+ "attack",
+ attack
+);
+
+holdButton(
+ "jutsu",
+ jutsu
+);
+
+holdButton(
+ "ult",
+ ultimate
+);
+
+holdButton(
+ "switch",
+ switchHero
+);
+
+
+/* =========================
+   AUTO KEYBOARD MOVEMENT
+   ========================= */
+
+setInterval(()=>{
+
+ if(keys["arrowleft"]){
+
+   hero.vx=
+     -heroData().speed;
+
+   hero.facing=-1;
+
+ }
+
+ if(keys["arrowright"]){
+
+   hero.vx=
+     heroData().speed;
+
+   hero.facing=1;
+
+ }
+
+ updateHUD();
+
+},50);
+
+
+/* =========================
+   INITIAL PLAYER STATS
+   ========================= */
+
+hero.maxHp=
+ 100+
+ save.health*10;
+
+hero.maxChakra=
+ 100+
+ save.chakra*10;
+
+hero.hp=
+ hero.maxHp;
+
+hero.chakra=
+ hero.maxChakra;
+
+updateHUD();
+
+</script>
+
+</body>
+</html>
