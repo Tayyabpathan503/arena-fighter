@@ -1,9 +1,674 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Arena Fighter 2.0</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arena Fighter 2.0</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:#070914;
+  color:white;
+  font-family:Arial,sans-serif;
+  text-align:center;
+}
+
+h1{
+  margin:12px 0 4px;
+  font-size:27px;
+  color:#fff;
+  text-shadow:0 0 12px #00d9ff;
+}
+
+.subtitle{
+  color:#8e9bb5;
+  font-size:13px;
+  margin-bottom:12px;
+}
+
+.status{
+  width:94%;
+  max-width:900px;
+  margin:auto;
+  display:flex;
+  gap:10px;
+}
+
+.statusBox{
+  flex:1;
+  background:#111827;
+  border:1px solid #27344f;
+  border-radius:12px;
+  padding:8px;
+}
+
+.name{
+  font-weight:bold;
+  font-size:13px;
+  margin-bottom:5px;
+}
+
+.bar{
+  height:16px;
+  background:#252b3a;
+  border-radius:20px;
+  overflow:hidden;
+  margin:4px 0;
+}
+
+.fill{
+  height:100%;
+  width:100%;
+  transition:width .25s;
+}
+
+.hp{
+  background:#20e070;
+}
+
+.enemyhp{
+  background:#ff4055;
+}
+
+.energy{
+  background:#00cfff;
+}
+
+.arena{
+  position:relative;
+  width:94%;
+  max-width:900px;
+  height:430px;
+  margin:14px auto;
+  overflow:hidden;
+  border:2px solid #34415e;
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 20%,#263c66 0,#12182b 45%,#080b15 100%);
+  box-shadow:0 0 30px rgba(0,200,255,.15);
+}
+
+.arena::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:55%;
+  height:2px;
+  background:#38506d;
+  box-shadow:0 40px 0 #25344c,0 80px 0 #1b293e;
+}
+
+.ground{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:65px;
+  background:linear-gradient(#182235,#0c101b);
+  border-top:2px solid #52647f;
+}
+
+.fighter{
+  position:absolute;
+  bottom:65px;
+  width:58px;
+  height:100px;
+  border-radius:18px 18px 9px 9px;
+  transition:left .12s,right .12s;
+  z-index:3;
+}
+
+.fighter::before{
+  content:"";
+  position:absolute;
+  width:42px;
+  height:42px;
+  left:8px;
+  top:-38px;
+  border-radius:50%;
+  background:#ffd0a6;
+  border:3px solid #111;
+}
+
+.fighter::after{
+  content:"";
+  position:absolute;
+  width:75px;
+  height:10px;
+  left:-8px;
+  bottom:-12px;
+  border-radius:50%;
+  background:rgba(0,0,0,.4);
+}
+
+#player{
+  left:70px;
+  background:linear-gradient(#25b8ff,#1765e8);
+  box-shadow:0 0 18px rgba(0,190,255,.5);
+}
+
+#enemy{
+  right:70px;
+  background:linear-gradient(#ff5364,#c51f3c);
+  box-shadow:0 0 18px rgba(255,40,70,.45);
+}
+
+.attackAnim{
+  animation:attack .25s;
+}
+
+.hitAnim{
+  animation:hit .25s;
+}
+
+@keyframes attack{
+  50%{
+    transform:translateX(18px) scale(1.08);
+  }
+}
+
+@keyframes hit{
+  25%{transform:translateX(-12px);}
+  50%{transform:translateX(12px);}
+  75%{transform:translateX(-7px);}
+}
+
+#message{
+  min-height:30px;
+  font-size:20px;
+  font-weight:bold;
+  color:#fff;
+  text-shadow:0 0 10px #00d9ff;
+}
+
+.controls{
+  width:96%;
+  max-width:800px;
+  margin:auto;
+}
+
+.row{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:8px 0;
+}
+
+button{
+  min-width:105px;
+  padding:14px 12px;
+  border:0;
+  border-radius:13px;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+  background:#202b40;
+  box-shadow:0 4px 0 #0b0f18;
+}
+
+button:active{
+  transform:translateY(3px);
+  box-shadow:none;
+}
+
+.attack{
+  background:#e87918;
+}
+
+.kick{
+  background:#d83b45;
+}
+
+.block{
+  background:#4055c8;
+}
+
+.special{
+  background:linear-gradient(135deg,#8e24aa,#d81bff);
+  box-shadow:0 0 14px rgba(216,27,255,.35);
+}
+
+.move{
+  background:#26344d;
+}
+
+.restart{
+  background:#149447;
+}
+
+.disabled{
+  opacity:.45;
+}
+
+.flash{
+  position:absolute;
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  pointer-events:none;
+  background:radial-gradient(circle,#fff,#00d9ff,transparent 65%);
+  animation:flash .4s forwards;
+  z-index:10;
+}
+
+@keyframes flash{
+  from{transform:scale(.2);opacity:1;}
+  to{transform:scale(1.7);opacity:0;}
+}
+
+@media(max-width:500px){
+
+  .arena{
+    height:350px;
+  }
+
+  button{
+    min-width:90px;
+    padding:12px 8px;
+    font-size:13px;
+  }
+
+  h1{
+    font-size:23px;
+  }
+}
+</style>
 </head>
+
 <body>
-  <h1>⚔️ Arena Fighter 2.0</h1>
+
+<h1>⚔️ ARENA FIGHTER 2.0</h1>
+<div class="subtitle">Battle • Block • Charge • Destroy</div>
+
+<div class="status">
+
+  <div class="statusBox">
+    <div class="name">🔵 PLAYER</div>
+
+    <div class="bar">
+      <div id="playerHP" class="fill hp"></div>
+    </div>
+
+    <div class="bar">
+      <div id="playerEnergy" class="fill energy"></div>
+    </div>
+  </div>
+
+  <div class="statusBox">
+    <div class="name">🔴 ENEMY</div>
+
+    <div class="bar">
+      <div id="enemyHP" class="fill enemyhp"></div>
+    </div>
+
+    <div class="bar">
+      <div id="enemyEnergy" class="fill energy"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="arena" id="arena">
+
+  <div id="player" class="fighter"></div>
+  <div id="enemy" class="fighter"></div>
+
+  <div class="ground"></div>
+
+</div>
+
+<div id="message">🔥 FIGHT!</div>
+
+<div class="controls">
+
+  <div class="row">
+    <button class="move" onclick="moveLeft()">⬅️ LEFT</button>
+    <button class="move" onclick="moveRight()">RIGHT ➡️</button>
+  </div>
+
+  <div class="row">
+    <button class="attack" onclick="punch()">👊 PUNCH</button>
+    <button class="kick" onclick="kick()">🦵 KICK</button>
+    <button class="block" onclick="block()">🛡️ BLOCK</button>
+  </div>
+
+  <div class="row">
+    <button id="specialBtn" class="special" onclick="specialAttack()">
+      ⚡ SPECIAL
+    </button>
+
+    <button class="restart" onclick="restartGame()">
+      🔄 RESTART
+    </button>
+  </div>
+
+</div>
+
+<script>
+
+let playerHP = 100;
+let enemyHP = 100;
+
+let playerEnergy = 0;
+let enemyEnergy = 0;
+
+let playerX = 70;
+
+let blocking = false;
+let gameOver = false;
+let enemyTimer = null;
+
+const player = document.getElementById("player");
+const enemy = document.getElementById("enemy");
+const arena = document.getElementById("arena");
+
+function updateBars(){
+
+  document.getElementById("playerHP").style.width =
+    playerHP + "%";
+
+  document.getElementById("enemyHP").style.width =
+    enemyHP + "%";
+
+  document.getElementById("playerEnergy").style.width =
+    playerEnergy + "%";
+
+  document.getElementById("enemyEnergy").style.width =
+    enemyEnergy + "%";
+
+  const specialBtn =
+    document.getElementById("specialBtn");
+
+  if(playerEnergy < 100){
+    specialBtn.classList.add("disabled");
+  }else{
+    specialBtn.classList.remove("disabled");
+  }
+}
+
+function showMessage(text){
+  document.getElementById("message").innerText = text;
+}
+
+function moveLeft(){
+
+  if(gameOver) return;
+
+  playerX -= 25;
+
+  if(playerX < 10)
+    playerX = 10;
+
+  player.style.left = playerX + "px";
+}
+
+function moveRight(){
+
+  if(gameOver) return;
+
+  playerX += 25;
+
+  const max =
+    arena.clientWidth - 80;
+
+  if(playerX > max)
+    playerX = max;
+
+  player.style.left = playerX + "px";
+}
+
+function effect(){
+
+  const flash =
+    document.createElement("div");
+
+  flash.className = "flash";
+
+  flash.style.left =
+    (enemy.offsetLeft - 30) + "px";
+
+  flash.style.top =
+    (enemy.offsetTop - 10) + "px";
+
+  arena.appendChild(flash);
+
+  setTimeout(()=>{
+    flash.remove();
+  },400);
+}
+
+function animateHit(){
+
+  enemy.classList.add("hitAnim");
+
+  setTimeout(()=>{
+    enemy.classList.remove("hitAnim");
+  },250);
+}
+
+function punch(){
+
+  if(gameOver) return;
+
+  const damage =
+    Math.floor(Math.random()*6)+8;
+
+  enemyHP -= damage;
+
+  if(enemyHP < 0)
+    enemyHP = 0;
+
+  player.classList.add("attackAnim");
+  animateHit();
+
+  setTimeout(()=>{
+    player.classList.remove("attackAnim");
+  },250);
+
+  playerEnergy += 15;
+
+  if(playerEnergy > 100)
+    playerEnergy = 100;
+
+  showMessage("👊 PUNCH  -" + damage);
+
+  updateBars();
+
+  enemyTurn();
+}
+
+function kick(){
+
+  if(gameOver) return;
+
+  const damage =
+    Math.floor(Math.random()*7)+12;
+
+  enemyHP -= damage;
+
+  if(enemyHP < 0)
+    enemyHP = 0;
+
+  player.classList.add("attackAnim");
+  animateHit();
+
+  setTimeout(()=>{
+    player.classList.remove("attackAnim");
+  },250);
+
+  playerEnergy += 20;
+
+  if(playerEnergy > 100)
+    playerEnergy = 100;
+
+  showMessage("🦵 KICK  -" + damage);
+
+  updateBars();
+
+  enemyTurn();
+}
+
+function block(){
+
+  if(gameOver) return;
+
+  blocking = true;
+
+  showMessage("🛡️ BLOCKING!");
+
+  setTimeout(()=>{
+    blocking = false;
+  },900);
+}
+
+function specialAttack(){
+
+  if(gameOver) return;
+
+  if(playerEnergy < 100){
+
+    showMessage("⚡ Energy is not full!");
+
+    return;
+  }
+
+  playerEnergy = 0;
+
+  const damage =
+    Math.floor(Math.random()*11)+30;
+
+  enemyHP -= damage;
+
+  if(enemyHP < 0)
+    enemyHP = 0;
+
+  effect();
+  animateHit();
+
+  showMessage(
+    "⚡🔥 SPECIAL ATTACK!  -" + damage
+  );
+
+  updateBars();
+
+  enemyTurn();
+}
+
+function enemyTurn(){
+
+  if(enemyHP <= 0){
+
+    gameOver = true;
+
+    showMessage("🏆 YOU WIN!");
+
+    return;
+  }
+
+  clearTimeout(enemyTimer);
+
+  enemyTimer = setTimeout(()=>{
+
+    if(gameOver) return;
+
+    let damage;
+
+    const useSpecial =
+      enemyEnergy >= 100 &&
+      Math.random() < .35;
+
+    if(useSpecial){
+
+      enemyEnergy = 0;
+
+      damage =
+        Math.floor(Math.random()*10)+25;
+
+      showMessage(
+        "🔴 ENEMY SPECIAL!  -" + damage
+      );
+
+    }else{
+
+      damage =
+        Math.floor(Math.random()*9)+6;
+
+      enemyEnergy += 18;
+
+      if(enemyEnergy > 100)
+        enemyEnergy = 100;
+
+      showMessage(
+        "💥 Enemy attacks!  -" + damage
+      );
+    }
+
+    if(blocking){
+
+      damage =
+        Math.floor(damage / 2);
+
+      showMessage(
+        "🛡️ BLOCKED!  -" + damage
+      );
+    }
+
+    playerHP -= damage;
+
+    if(playerHP < 0)
+      playerHP = 0;
+
+    updateBars();
+
+    if(playerHP <= 0){
+
+      gameOver = true;
+
+      showMessage("💀 YOU LOSE!");
+
+      return;
+    }
+
+    updateBars();
+
+  },650);
+}
+
+function restartGame(){
+
+  clearTimeout(enemyTimer);
+
+  playerHP = 100;
+  enemyHP = 100;
+
+  playerEnergy = 0;
+  enemyEnergy = 0;
+
+  playerX = 70;
+
+  blocking = false;
+  gameOver = false;
+
+  player.style.left =
+    playerX + "px";
+
+  updateBars();
+
+  showMessage("🔥 FIGHT!");
+}
+
+updateBars();
+
+</script>
+
 </body>
 </html>
