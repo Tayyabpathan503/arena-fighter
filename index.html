@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Shinobi Arena</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{
+  margin:0;width:100%;height:100%;overflow:hidden;
+  background:#050713;color:white;font-family:Arial,sans-serif;
+  touch-action:none;
+}
+canvas{display:block;width:100%;height:100%;background:#080b18}
+
+#hud{
+ position:fixed;top:8px;left:8px;right:8px;
+ display:flex;justify-content:space-between;pointer-events:none;
+ z-index:5;
+}
+.panel{
+ background:rgba(0,0,0,.65);border:1px solid #ffffff33;
+ border-radius:12px;padding:7px 10px;backdrop-filter:blur(5px)
+}
+.bar{width:170px;height:13px;background:#222;border-radius:10px;overflow:hidden;margin:3px}
+#hp{height:100%;background:#ef3340;width:100%}
+#chakra{height:100%;background:#31a8ff;width:100%}
+
+#menu,#gameover{
+ position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+ background:radial-gradient(circle,#18265c,#050713 70%);
+ z-index:20;text-align:center;
+}
+.box{
+ width:min(94%,560px);padding:25px;border-radius:22px;
+ background:rgba(8,12,30,.94);border:1px solid #ffffff25;
+ box-shadow:0 20px 80px #000;
+}
+h1{
+ margin:0 0 5px;font-size:42px;
+ background:linear-gradient(90deg,#42d9ff,#b96cff,#ff4c78);
+ color:transparent;background-clip:text;
+}
+button{
+ border:0;border-radius:13px;padding:13px 18px;margin:5px;
+ color:white;background:#303b80;font-size:16px;font-weight:bold;
+ box-shadow:0 4px 0 #151b40;
+}
+button:active{transform:translateY(3px);box-shadow:none}
+.primary{background:linear-gradient(90deg,#6b35ff,#e53277)}
+.hidden{display:none!important}
+
+#controls{
+ position:fixed;bottom:15px;left:0;right:0;height:145px;
+ z-index:10;pointer-events:none;
+}
+.ctrl{
+ position:absolute;width:62px;height:62px;border-radius:50%;
+ border:1px solid #ffffff38;background:#ffffff18;color:white;
+ font-size:25px;pointer-events:auto;user-select:none;
+}
+#left{left:18px;bottom:30px}
+#right{left:90px;bottom:30px}
+#jump{right:190px;bottom:72px}
+#attack{right:105px;bottom:20px;background:#7b263b}
+#jutsu{right:25px;bottom:75px;background:#253e8a}
+#ult{right:105px;bottom:95px;background:#71358e}
+#switch{right:25px;bottom:20px}
+
+#mission{
+ position:fixed;left:50%;top:70px;transform:translateX(-50%);
+ z-index:6;padding:7px 13px;background:#0009;border-radius:20px;
+ font-size:13px;text-align:center
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+ <div class="panel">
+   <b id="heroName">KAI</b>
+   <div class="bar"><div id="hp"></div></div>
+   <div class="bar"><div id="chakra"></div></div>
+   <span>Lv.<b id="level">1</b> • XP <b id="xp">0</b> • 💰 <b id="coins">0</b></span>
+ </div>
+
+ <div class="panel">
+   <b id="stageText">MISSION 1</b><br>
+   Enemy: <span id="enemyCount">0</span>
+ </div>
+</div>
+
+<div id="mission">Defeat all enemies</div>
+
+<div id="menu">
+ <div class="box">
+   <h1>SHINOBI ARENA</h1>
+   <p>Anime Ninja Action • Story • Boss • Survival</p>
+
+   <button class="primary" onclick="startGame()">START GAME</button>
+   <button onclick="survival()">SURVIVAL MODE</button>
+   <button onclick="upgrade()">UPGRADES</button>
+
+   <p id="menuInfo">Choose your path, master chakra and defeat the bosses.</p>
+ </div>
+</div>
+
+<div id="gameover" class="hidden">
+ <div class="box">
+   <h1 id="resultTitle">MISSION COMPLETE</h1>
+   <p id="resultText"></p>
+   <button class="primary" onclick="nextMission()">NEXT MISSION</button>
+   <button onclick="backMenu()">MENU</button>
+ </div>
+</div>
+
+<div id="controls">
+ <button class="ctrl" id="left">◀</button>
+ <button class="ctrl" id="right">▶</button>
+ <button class="ctrl" id="jump">⬆</button>
+ <button class="ctrl" id="attack">👊</button>
+ <button class="ctrl" id="jutsu">⚡</button>
+ <button class="ctrl" id="ult">🔥</button>
+ <button class="ctrl" id="switch">⇄</button>
+</div>
+
+<script>
+/* =========================================================
+   SHINOBI ARENA - SINGLE FILE GAME
+   ========================================================= */
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+let W,H;
+function resize(){
+ W=canvas.width=innerWidth*devicePixelRatio;
+ H=canvas.height=innerHeight*devicePixelRatio;
+ canvas.style.width=innerWidth+"px";
+ canvas.style.height=innerHeight+"px";
+ ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+ W=innerWidth;H=innerHeight;
+}
+addEventListener("resize",resize);
+resize();
+
+let running=false;
+let mode="story";
+let mission=1;
+let wave=1;
+let keys={};
+let enemies=[];
+let particles=[];
+let projectiles=[];
+let effects=[];
+let cameraX=0;
+let world=5000;
+let last=0;
+
+let save=JSON.parse(localStorage.getItem("shinobiArenaSave")||"null")||{
+ level:1,xp:0,coins:100,damage:1,chakra:1,health:1
+};
+
+const heroes=[
+ {name:"KAI",color:"#38cfff",damage:22,speed:5.5,jutsu:"Wind Slash"},
+ {name:"RAI",color:"#ff4b63",damage:28,speed:4.8,jutsu:"Flame Burst"},
+ {name:"YUMI",color:"#b66cff",damage:20,speed:6.2,jutsu:"Shadow Wave"}
+];
+
+let heroIndex=0;
+let hero={
+ x:450,y:0,vx:0,vy:0,w:45,h:75,
+ hp:100,maxHp:100,chakra:100,maxChakra:100,
+ facing:1,attackTimer:0,attackCooldown:0,
+ inv:0,combo:0
+};
+
+function heroData(){return heroes[heroIndex]}
+
+function saveGame(){
+ localStorage.setItem("shinobiArenaSave",JSON.stringify(save));
+ updateHUD();
+}
+
+function updateHUD(){
+ document.getElementById("level").textContent=save.level;
+ document.getElementById("xp").textContent=save.xp;
+ document.getElementById("coins").textContent=save.coins;
+ document.getElementById("heroName").textContent=heroData().name;
+ document.getElementById("hp").style.width=(hero.hp/hero.maxHp*100)+"%";
+ document.getElementById("chakra").style.width=(hero.chakra/hero.maxChakra*100)+"%";
+ document.getElementById("stageText").textContent=
+   mode==="survival"?"SURVIVAL WAVE "+wave:"MISSION "+mission;
+ document.getElementById("enemyCount").textContent=enemies.length;
+}
+
+function startGame(){
+ document.getElementById("menu").classList.add("hidden");
+ document.getElementById("gameover").classList.add("hidden");
+ mode="story";
+ mission=1;
+ initMission();
+ running=true;
+}
+
+function survival(){
+ document.getElementById("menu").classList.add("hidden");
+ document.getElementById("gameover").classList.add("hidden");
+ mode="survival";
+ wave=1;
+ initWave();
+ running=true;
+}
+
+function initMission(){
+ world=4200+mission*600;
+ hero.x=350;
+ hero.y=0;
+ hero.vx=0;hero.vy=0;
+ hero.hp=hero.maxHp;
+ hero.chakra=hero.maxChakra;
+ enemies=[];
+ particles=[];
+ projectiles=[];
+ effects=[];
+ 
+ let amount=4+mission*2;
+ for(let i=0;i<amount;i++){
+   spawnEnemy(850+i*430,"normal");
+ }
+ if(mission%3===0){
+   spawnEnemy(world-500,"boss");
+ }
+ updateHUD();
+}
+
+function initWave(){
+ world=4500;
+ enemies=[];
+ particles=[];
+ projectiles=[];
+ effects=[];
+ hero.x=400;
+ hero.y=0;
+ hero.hp=hero.maxHp;
+ hero.chakra=hero.maxChakra;
+
+ for(let i=0;i<4+wave*2;i++)
+   spawnEnemy(900+i*420,wave%5===0?"boss":"normal");
+
+ updateHUD();
+}
+
+function spawnEnemy(x,type){
+ let boss=type==="boss";
+ enemies.push({
+   x:x,y:0,w:boss?75:48,h:boss?105:72,
+   hp:boss?450+mission*80:70+mission*15,
+   maxHp:boss?450+mission*80:70+mission*15,
+   speed:boss?1.1:1.7,
+   damage:boss?18:9,
+   type:type,
+   attack:0,hit:0,dead:false,
+   color:boss?"#ff315a":"#8c94ad"
+ });
+}
+
+function ground(){
+ return H/devicePixelRatio-95;
+}
+
+function physics(){
+ if(!running)return;
+
+ hero.vy+=.65;
+ hero.x+=hero.vx;
+ hero.y+=hero.vy;
+
+ let g=ground()-hero.h;
+ if(hero.y>g){hero.y=g;hero.vy=0}
+
+ hero.vx*=.82;
+ hero.x=Math.max(50,Math.min(world-100,hero.x));
+
+ if(hero.attackCooldown>0)hero.attackCooldown--;
+ if(hero.attackTimer>0)hero.attackTimer--;
+ if(hero.inv>0)hero.inv--;
+
+ if(hero.chakra<hero.maxChakra)
+   hero.chakra+=.08;
+
+ for(const e of enemies){
+   if(e.dead)continue;
+
+   let dx=hero.x-e.x;
+   let dist=Math.abs(dx);
+
+   if(dist>75){
+     e.x+=Math.sign(dx)*e.speed;
+   }else{
+     if(e.attack<=0){
+       e.attack=60;
+       damageHero(e.damage);
+     }
+   }
+
+   if(e.attack>0)e.attack--;
+   if(e.hit>0)e.hit--;
+
+   if(e.hp<=0)e.dead=true;
+ }
+
+ enemies=enemies.filter(e=>!e.dead);
+
+ if(enemies.length===0){
+   setTimeout(()=>{
+     if(!running)return;
+     if(mode==="story")missionComplete();
+     else{
+       wave++;
+       initWave();
+     }
+   },500);
+ }
+
+ if(hero.hp<=0)loseGame();
+
+ cameraX=hero.x-W*.42;
+ cameraX=Math.max(0,Math.min(world-W,cameraX));
+}
+
+function damageHero(dmg){
+ if(hero.inv>0)return;
+ hero.hp-=dmg;
+ hero.inv=35;
+ burst(hero.x+20,hero.y+30,"#ff344f",8);
+ updateHUD();
+}
+
+function attack(){
+ if(!running||hero.attackCooldown>0)return;
+
+ hero.attackCooldown=18;
+ hero.attackTimer=12;
+ hero.combo++;
+ if(hero.combo>3)hero.combo=1;
+
+ let range=95;
+ let damage=heroData().damage*save.damage*(1+.1*hero.combo);
+
+ for(const e of enemies){
+   if(Math.abs(e.x-hero.x)<range &&
+      Math.sign(e.x-hero.x)===hero.facing){
+      e.hp-=damage;
+      e.hit=8;
+      burst(e.x,e.y+30,"#fff",10);
+      shake();
+   }
+ }
+}
+
+function jutsu(){
+ if(!running||hero.chakra<25)return;
+
+ hero.chakra-=25;
+
+ let hx=hero.x+hero.facing*40;
+ projectiles.push({
+   x:hx,y:hero.y+25,vx:hero.facing*10,
+   life:70,damage:55*save.chakra
+ });
+
+ effects.push({
+   x:hx,y:hero.y+25,life:20,type:"jutsu"
+ });
+}
+
+function ultimate(){
+ if(!running||hero.chakra<70)return;
+
+ hero.chakra-=70;
+
+ for(const e of enemies){
+   if(Math.abs(e.x-hero.x)<400){
+     e.hp-=180*save.chakra;
+     burst(e.x,e.y+30,"#c45cff",25);
+   }
+ }
+
+ effects.push({
+   x:hero.x,y:hero.y+25,life:45,type:"ultimate"
+ });
+
+ shake(12);
+}
+
+function jump(){
+ if(!running)return;
+ if(Math.abs(hero.y-(ground()-hero.h))<5)
+   hero.vy=-13;
+}
+
+function switchHero(){
+ heroIndex=(heroIndex+1)%heroes.length;
+ hero.hp=hero.maxHp;
+ hero.chakra=hero.maxChakra;
+ hero.combo=0;
+ updateHUD();
+}
+
+function damageEnemy(e,d){
+ e.hp-=d;
+ e.hit=8;
+}
+
+function updateProjectiles(){
+ for(const p of projectiles){
+   p.x+=p.vx;p.life--;
+
+   for(const e of enemies){
+     if(!e.dead&&Math.abs(p.x-e.x)<55){
+       damageEnemy(e,p.damage);
+       p.life=0;
+       burst(e.x,e.y+25,"#42d9ff",15);
+     }
+   }
+ }
+ projectiles=projectiles.filter(p=>p.life>0);
+}
+
+function burst(x,y,color,n){
+ for(let i=0;i<n;i++){
+   particles.push({
+     x,y,
+     vx:(Math.random()-.5)*8,
+     vy:(Math.random()-.5)*8,
+     life:20+Math.random()*30,
+     color
+   });
+ }
+}
+
+let shakePower=0;
+function shake(p=5){shakePower=Math.max(shakePower,p)}
+
+function updateParticles(){
+ for(const p of particles){
+   p.x+=p.vx;p.y+=p.vy;
+   p.vy+=.15;p.life--;
+ }
+ particles=particles.filter(p=>p.life>0);
+
+ for(const e of effects)e.life--;
+ effects=effects.filter(e=>e.life>0);
+}
+
+function drawBackground(){
+ ctx.fillStyle="#090d22";
+ ctx.fillRect(0,0,W,H);
+
+ let sky=ctx.createLinearGradient(0,0,0,H);
+ sky.addColorStop(0,"#111b45");
+ sky.addColorStop(1,"#070914");
+ ctx.fillStyle=sky;
+ ctx.fillRect(0,0,W,H);
+
+ /* moon */
+ ctx.fillStyle="#e8ecff";
+ ctx.beginPath();
+ ctx.arc(W-100,90,42,0,Math.PI*2);
+ ctx.fill();
+
+ /* distant mountains */
+ ctx.fillStyle="#151b38";
+ for(let i=-2;i<15;i++){
+   let x=i*400-(cameraX*.2%400);
+   ctx.beginPath();
+   ctx.moveTo(x,ground());
+   ctx.lineTo(x+200,ground()-230);
+   ctx.lineTo(x+430,ground());
+   ctx.fill();
+ }
+
+ /* trees */
+ for(let i=-2;i<20;i++){
+   let x=i*260-(cameraX*.45%260);
+   drawTree(x,ground()-10);
+ }
+}
+
+function drawTree(x,y){
+ ctx.fillStyle="#241b20";
+ ctx.fillRect(x-8,y-100,16,100);
+
+ ctx.fillStyle="#122f36";
+ for(let i=0;i<4;i++){
+   ctx.beginPath();
+   ctx.arc(x+(i%2?25:-20),y-115-i*22,35,0,Math.PI*2);
+   ctx.fill();
+ }
+}
+
+function drawGround(){
+ let gy=ground();
+ ctx.fillStyle="#151823";
+ ctx.fillRect(0,gy,W,H-gy);
+
+ ctx.strokeStyle="#31374d";
+ ctx.lineWidth=2;
+
+ for(let x=-cameraX%100;x<W;x+=100){
+   ctx.beginPath();
+   ctx.moveTo(x,gy);
+   ctx.lineTo(x+40,gy+50);
+   ctx.stroke();
+ }
+}
+
+function drawHero(){
+ let x=hero.x-cameraX;
+ let y=hero.y;
+
+ ctx.save();
+ ctx.translate(x,y);
+
+ if(hero.facing<0)ctx.scale(-1,1);
+
+ if(hero.inv%6<3)ctx.globalAlpha=.55;
+
+ /* shadow */
+ ctx.fillStyle="#0008";
+ ctx.beginPath();
+ ctx.ellipse(22,hero.h+3,30,8,0,0,Math.PI*2);
+ ctx.fill();
+
+ /* legs */
+ ctx.fillStyle="#222a4d";
+ ctx.fillRect(7,48,12,27);
+ ctx.fillRect(27,48,12,27);
+
+ /* body */
+ ctx.fillStyle=heroData().color;
+ ctx.fillRect(5,20,38,36);
+
+ /* scarf */
+ ctx.fillStyle="#ff385d";
+ ctx.fillRect(0,25,12,7);
+
+ /* head */
+ ctx.fillStyle="#e7b08d";
+ ctx.beginPath();
+ ctx.arc(24,13,17,0,Math.PI*2);
+ ctx.fill();
+
+ /* hair */
+ ctx.fillStyle="#101321";
+ ctx.beginPath();
+ ctx.moveTo(8,13);
+ ctx.lineTo(13,-5);
+ ctx.lineTo(20,5);
+ ctx.lineTo(27,-7);
+ ctx.lineTo(32,5);
+ ctx.lineTo(43,-1);
+ ctx.lineTo(39,16);
+ ctx.fill();
+
+ /* headband */
+ ctx.fillStyle="#bfc7d9";
+ ctx.fillRect(9,8,31,6);
+ ctx.fillStyle="#151a27";
+ ctx.fillRect(21,9,7,4);
+
+ /* eyes */
+ ctx.fillStyle="#111";
+ ctx.fillRect(16,15,5,3);
+ ctx.fillRect(29,15,5,3);
+
+ if(hero.attackTimer>0){
+   ctx.strokeStyle="#fff";
+   ctx.lineWidth=5;
+   ctx.beginPath();
+   ctx.moveTo(35,28);
+   ctx.lineTo(78,8);
+   ctx.stroke();
+ }
+
+ ctx.restore();
+}
+
+function drawEnemy(e){
+ let x=e.x-cameraX,y=e.y;
+
+ ctx.save();
+ ctx.translate(x,y);
+
+ if(hero.x<e.x)ctx.scale(-1,1);
+
+ ctx.fillStyle="#0008";
+ ctx.beginPath();
+ ctx.ellipse(e.w/2,e.h+4,e.w*.55,8,0,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.fillStyle=e.color;
+ ctx.fillRect(5,20,e.w-10,e.h-25);
+
+ ctx.fillStyle="#1c1c2b";
+ ctx.beginPath();
+ ctx.arc(e.w/2,14,e.w*.28,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.fillStyle="#f1c0a0";
+ ctx.beginPath();
+ ctx.arc(e.w/2,16,e.w*.23,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.fillStyle="#111";
+ ctx.fillRect(e.w*.3,17,5,3);
+ ctx.fillRect(e.w*.58,17,5,3);
+
+ if(e.hit>0){
+   ctx.fillStyle="#fff";
+   ctx.fillRect(0,0,e.w,e.h);
+ }
+
+ ctx.restore();
+
+ /* enemy HP */
+ ctx.fillStyle="#000";
+ ctx.fillRect(x, y-12,e.w,5);
+ ctx.fillStyle=e.type==="boss"?"#ff315a":"#54df67";
+ ctx.fillRect(x,y-12,e.w*(e.hp/e.maxHp),5);
+}
+
+function drawProjectiles(){
+ for(const p of projectiles){
+   let x=p.x-cameraX;
+   ctx.fillStyle="#55dfff";
+   ctx.shadowBlur=20;
+   ctx.shadowColor="#55dfff";
+   ctx.beginPath();
+   ctx.arc(x,p.y,12,0,Math.PI*2);
+   ctx.fill();
+   ctx.shadowBlur=0;
+ }
+}
+
+function drawEffects(){
+ for(const e of effects){
+   let x=e.x-cameraX;
+
+   if(e.type==="jutsu"){
+     ctx.strokeStyle="#45ddff";
+     ctx.lineWidth=5;
+     ctx.beginPath();
+     ctx.arc(x,e.y,35+e.life,0,Math.PI*2);
+     ctx.stroke();
+   }
+
+   if(e.type==="ultimate"){
+     ctx.strokeStyle="#c65cff";
+     ctx.lineWidth=8;
+     ctx.beginPath();
+     ctx.arc(x,e.y,120-e.life,0,Math.PI*2);
+     ctx.stroke();
+   }
+ }
+}
+
+function drawParticles(){
+ for(const p of particles){
+   ctx.globalAlpha=Math.max(0,p.life/40);
+   ctx.fillStyle=p.color;
+   ctx.fillRect(p.x-cameraX,p.y,5,5);
+ }
+ ctx.globalAlpha=1;
+}
+
+function render(){
+ ctx.save();
+
+ if(shakePower>0){
+   ctx.translate(
+    (Math.random()-.5)*shakePower,
+    (Math.random()-.5)*shakePower
+   );
+   shakePower*=.8;
+   if(shakePower<.2)shakePower=0;
+ }
+
+ drawBackground();
+ drawGround();
+
+ for(const e of enemies)drawEnemy(e);
+ drawProjectiles();
+ drawHero();
+ drawEffects();
+ drawParticles();
+
+ ctx.restore();
+}
+
+function loop(t){
+ let dt=t-last;last=t;
+
+ physics();
+ updateProjectiles();
+ updateParticles();
+ render();
+
+ requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+function missionComplete(){
+ running=false;
+
+ save.xp+=50*mission;
+ save.coins+=30*mission;
+
+ if(save.xp>=save.level*150){
+   save.xp=0;
+   save.level++;
+   save.damage+=.15;
+   save.health+=.15;
+   hero.maxHp+=10;
+   hero.maxChakra+=10;
+ }
+
+ saveGame();
+
+ document.getElementById("resultTitle").textContent="MISSION COMPLETE!";
+ document.getElementById("resultText").textContent=
+   "Mission "+mission+" cleared!  +"+(50*mission)+" XP  +"+(30*mission)+" coins";
+ document.getElementById("gameover").classList.remove("hidden");
+}
+
+function nextMission(){
+ document.getElementById("gameover").classList.add("hidden");
+ mission++;
+ running=true;
+ initMission();
+}
+
+function loseGame(){
+ running=false;
+
+ document.getElementById("resultTitle").textContent="DEFEATED";
+ document.getElementById("resultText").textContent=
+   "The mission failed. Train harder and try again.";
+ document.getElementById("gameover").classList.remove("hidden");
+}
+
+function backMenu(){
+ running=false;
+ document.getElementById("gameover").classList.add("hidden");
+ document.getElementById("menu").classList.remove("hidden");
+}
+
+function upgrade(){
+ if(save.coins<50){
+   document.getElementById("menuInfo").textContent=
+     "You need 50 coins for an upgrade.";
+   return;
+ }
+
+ save.coins-=50;
+ save.damage+=.25;
+ save.health+=.15;
+ save.chakra+=.15;
+
+ saveGame();
+
+ document.getElementById("menuInfo").textContent=
+   "Upgrade complete! Damage, health and chakra increased.";
+}
+
+/* =========================
+   KEYBOARD
+   ========================= */
+
+addEventListener("keydown",e=>{
+ keys[e.key.toLowerCase()]=true;
+
+ if(e.key==="ArrowLeft")hero.vx=-heroData().speed;
+ if(e.key==="ArrowRight")hero.vx=heroData().speed;
+
+ if(e.key===" "||e.key==="ArrowUp")jump();
+
+ if(e.key.toLowerCase()==="z")attack();
+ if(e.key.toLowerCase()==="x")jutsu();
+ if(e.key.toLowerCase()==="c")ultimate();
+ if(e.key.toLowerCase()==="v")switchHero();
+});
+
+addEventListener("keyup",e=>{
+ keys[e.key.toLowerCase()]=false;
+});
+
+/* =========================
+   TOUCH
+   ========================= */
+
+function holdButton(id,down,up){
+ const el=document.getElementById(id);
+
+ el.addEventListener("touchstart",e=>{
+   e.preventDefault();down();
+ },{passive:false});
+
+ el.addEventListener("touchend",e=>{
+   e.preventDefault();up&&up();
+ },{passive:false});
+
+ el.addEventListener("mousedown",down);
+ el.addEventListener("mouseup",up||(()=>{}));
+}
+
+holdButton("left",
+ ()=>hero.vx=-heroData().speed,
+ ()=>{if(hero.vx<0)hero.vx=0}
+);
+
+holdButton("right",
+ ()=>hero.vx=heroData().speed,
+ ()=>{if(hero.vx>0)hero.vx=0}
+);
+
+holdButton("jump",jump);
+holdButton("attack",attack);
+holdButton("jutsu",jutsu);
+holdButton("ult",ultimate);
+holdButton("switch",switchHero);
+
+/* Auto movement from keyboard */
+setInterval(()=>{
+ if(keys["arrowleft"])hero.vx=-heroData().speed;
+ if(keys["arrowright"])hero.vx=heroData().speed;
+
+ if(hero.vx>0)hero.facing=1;
+ if(hero.vx<0)hero.facing=-1;
+
+ updateHUD();
+},50);
+
+/* =========================================================
+   DEV / GAME INITIALIZATION
+   ========================================================= */
+
+hero.maxHp=100+save.health*10;
+hero.maxChakra=100+save.chakra*10;
+hero.hp=hero.maxHp;
+hero.chakra=hero.maxChakra;
+
+updateHUD();
+</script>
+
+</body>
+</html>
